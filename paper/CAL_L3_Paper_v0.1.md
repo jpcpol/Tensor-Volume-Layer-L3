@@ -184,7 +184,7 @@ This is Step S4 of the experimental plan — run first, cheapest gate.
 | **S4** | Manifold test: is dim(M_gov) << ambient? | UMAP + PCA; n=12 prelim (§6.3) + n=90 definitive (§6.5) | ✅ Confirmed (§6.5) | dim(M_gov)≈2–3, tw≥0.96 by both methods → **TUCKER** |
 | S1 | Synthetic pipeline generator | New `causal_generator.py`; 3 known causal graphs (G1–G3), 90 sessions | ✅ Done (§6.4) | Signal validated: true-edge \|r\|=0.53 vs control 0.12 |
 | S2 | C = Tucker on {T⁽ˢ⁾} stack; measure κ(V) | `tensorly` Tucker-HOOI | ✅ Done (§6.6) | 98% var @ r₀=1, 197× compress; Property 4 holds (κ sub-linear) |
-| S3 | Causal conservation test: does M(V) recover ground-truth causal graph? | Compare recovered vs. known causal edges | Pending | Pre-register before running |
+| S3 | Causal conservation test: does M(V) recover ground-truth causal graph? | Granger (run 1); PCMCI/cond-Granger (run 2) | ⚠️ Run 1 inconclusive (§6.7) | Pre-registered; method too weak (raw F1=0.55<0.70) → revise + re-run |
 | S5 | O(n²) flat vs O(κ) cost contrast | `fa_dme` on AMD MI300X | **Deferred → AMD-Instinct** | Gate: C validated on S1–S4 |
 
 ### 6.1 Pre-Registration Protocol
@@ -303,6 +303,23 @@ The 30 sessions of each graph share a near-identical latent structure (they shar
 As n triples (10→30), r₀* grows at most 2× (or stays constant), well below the linear ratio of 3.0. **Property 4 holds: κ(V) grows sub-linearly with n_sessions** — C is tractable for continuous pipelines, satisfying the L4 Efficiency Hypothesis precondition that κ(V) ≪ O(n²).
 
 **Status.** C = Tucker satisfies Property 3 (dimensional stability, by construction — the 11-dim mode is preserved) and Property 4 (tractability, measured). Property 1 (causal preservation) is the subject of **S3**: does M(V) recover the ground-truth causal edges? Property 2 (temporal coherence) is partially exercised (cycle mode retained at rank 6) and fully tested alongside S3.
+
+### 6.7 S3 Run 1: Causal Conservation — Inconclusive (method-attributed)
+
+S3 tests Property 1: does C preserve the causal structure between quality dimensions? The protocol was pre-registered (§6.1) before any code: pairwise Granger causality (maxlag=1, the injected lag), α=0.01, micro-F1 across G1/G2/G3 against the 6 ground-truth edges, run on the Tucker reconstruction V̂ (primary) and the raw corpus (attribution control). Acceptance: F1 ≥ 0.70.
+
+**Result (run 1):**
+
+| Condition | micro-F1 | precision | recall |
+|-----------|---------|-----------|--------|
+| Raw corpus (control) | 0.545 | 0.375 | 1.000 |
+| Tucker reconstruction (primary) | 0.048 | 0.025 | 0.500 |
+
+**Verdict: inconclusive.** The reconstruction F1 (0.048) falls below the FAIL threshold, but the pre-registered attribution rule fires: the raw-corpus control also falls below 0.70, so the negative is attributed to the *discovery method*, not to C. The pre-registration's attribution clause did exactly its intended job — it prevented a method artifact from being mistaken for a refutation of C.
+
+**Diagnosis.** Two distinct issues, both real. (1) Pairwise Granger recovers every true edge (raw recall = 1.00) but adds transitive and reverse false positives — e.g., for G1 it flags 3→6, the composition of the true chain 3→5→6 — because it cannot separate direct from indirect links. Precision, not recall, caps F1. (2) The low-rank Tucker reconstruction (r₀=3, cycle=6) that achieved 98% variance (§6.6) smooths trajectories and mixes dimensions through the factor matrices, producing 117 spurious lagged correlations. This is consistent with the semantic-collapse risk (§3): high numerical fidelity does not guarantee preserved causal *structure*. But the failing control means this cannot yet be attributed to C alone.
+
+**Revision (pre-registered before S3 run 2).** Replace pairwise Granger with a method that controls for indirect paths — conditional/multivariate Granger or PCMCI (`tigramite`) — and first establish a raw-corpus ceiling of F1 ≥ 0.70 before the reconstruction test is meaningful. If raw passes and reconstruction fails, *that* is a clean Property-1 refutation worth reporting. A κ(V)-vs-causal-F1 trade-off across Tucker ranks is a candidate characterization of C. Run 1 is documented in `causal_conservation/NEGATIVE_RESULTS.md`. S2 and S4 are unaffected (they do not depend on the discovery method); Property 1 remains **open, not refuted**.
 
 ---
 
