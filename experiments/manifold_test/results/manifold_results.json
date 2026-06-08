@@ -1,0 +1,57 @@
+{
+  "experiment": "S4 \u2014 Governance Manifold Test",
+  "pre_registration": {
+    "H_manifold": "dim(M_gov) <= 3",
+    "acceptance_criterion": "trustworthiness >= 0.85 at dim <= 3",
+    "commit_date": "2026-06-07"
+  },
+  "dataset": {
+    "n_points": 12,
+    "n_dims_ambient": 11,
+    "scenarios": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5"
+    ],
+    "artifacts": [
+      "s1_clean",
+      "s1_sql_injection",
+      "s2_clean",
+      "s2_circular_dep",
+      "s3_k0_baseline",
+      "s3_k1_debt",
+      "s3_k2_debt",
+      "s3_k3_debt",
+      "s4_clean",
+      "s4_no_observability",
+      "s5_security_agent",
+      "s5_code_agent"
+    ]
+  },
+  "sweep_dims": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "trustworthiness": {
+    "2": 0.8125,
+    "3": 0.7583333333333333,
+    "4": 0.7833333333333333,
+    "5": 0.8
+  },
+  "decision": {
+    "dim_gov": 5,
+    "strategy": "SPARSE_SSM",
+    "verdict": "H_manifold FAILED \u2014 no dim achieves trustworthiness >= 0.85 within sweep range",
+    "proceed": "Switch to sparse representation + SSM-inspired gating. Update pre-registration.",
+    "trustworthiness_by_dim": {
+      "2": 0.8125,
+      "3": 0.7583333333333333,
+      "4": 0.7833333333333333,
+      "5": 0.8
+    }
+  }
+}
