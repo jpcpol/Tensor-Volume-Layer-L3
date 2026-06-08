@@ -1,0 +1,158 @@
+{
+  "experiment": "S4 (definitive) \u2014 Manifold test on synthetic corpus",
+  "corpus": "S1 synthetic (n=90, 30 per graph G1/G2/G3)",
+  "pre_registration": {
+    "H_manifold": "dim(M_gov) <= 3",
+    "acceptance_criterion": "trustworthiness >= 0.85 at dim <= 3",
+    "borderline_threshold": 0.7,
+    "commit_date": "2026-06-07"
+  },
+  "methodology": {
+    "vector_reduction": "T (11x4x4x12) -> mean over stage,agent,cycle -> v in [0,1]^11",
+    "umap_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "umap_n_neighbors_grid": [
+      5,
+      10,
+      15
+    ],
+    "trustworthiness_k": 10,
+    "pca_triangulation": true
+  },
+  "dataset": {
+    "n_points": 90,
+    "n_dims_ambient": 11,
+    "graphs": [
+      "G1",
+      "G2",
+      "G3"
+    ]
+  },
+  "umap": {
+    "2": {
+      "trustworthiness_mean": 0.9586741237882178,
+      "trustworthiness_std": 0.003101491710288138,
+      "best_n_neighbors": 15,
+      "per_n_neighbors": {
+        "5": {
+          "mean": 0.948545861297539,
+          "std": 0.0029928021847604436
+        },
+        "10": {
+          "mean": 0.95655182699478,
+          "std": 0.0031033153367801382
+        },
+        "15": {
+          "mean": 0.9586741237882178,
+          "std": 0.003101491710288138
+        }
+      }
+    },
+    "3": {
+      "trustworthiness_mean": 0.9648948545861298,
+      "trustworthiness_std": 0.0011814453019147176,
+      "best_n_neighbors": 15,
+      "per_n_neighbors": {
+        "5": {
+          "mean": 0.951398956002983,
+          "std": 0.0029283541897331456
+        },
+        "10": {
+          "mean": 0.9619373601789711,
+          "std": 0.0020364955237418807
+        },
+        "15": {
+          "mean": 0.9648948545861298,
+          "std": 0.0011814453019147176
+        }
+      }
+    },
+    "4": {
+      "trustworthiness_mean": 0.9693840417598805,
+      "trustworthiness_std": 0.0015068375809718967,
+      "best_n_neighbors": 15,
+      "per_n_neighbors": {
+        "5": {
+          "mean": 0.9536674123788218,
+          "std": 0.002772238068723193
+        },
+        "10": {
+          "mean": 0.9658463832960479,
+          "std": 0.0015859248188352761
+        },
+        "15": {
+          "mean": 0.9693840417598805,
+          "std": 0.0015068375809718967
+        }
+      }
+    },
+    "5": {
+      "trustworthiness_mean": 0.9696122296793439,
+      "trustworthiness_std": 0.0020144858684520107,
+      "best_n_neighbors": 15,
+      "per_n_neighbors": {
+        "5": {
+          "mean": 0.9536793437733035,
+          "std": 0.002342512513926611
+        },
+        "10": {
+          "mean": 0.9649589858314691,
+          "std": 0.0009669043098352574
+        },
+        "15": {
+          "mean": 0.9696122296793439,
+          "std": 0.0020144858684520107
+        }
+      }
+    }
+  },
+  "pca": {
+    "2": {
+      "trustworthiness": 0.945786726323639,
+      "cum_explained_variance": 0.6424016420619298
+    },
+    "3": {
+      "trustworthiness": 0.9616256524981357,
+      "cum_explained_variance": 0.7171933916078883
+    },
+    "4": {
+      "trustworthiness": 0.9728709917971663,
+      "cum_explained_variance": 0.7757479511728967
+    },
+    "5": {
+      "trustworthiness": 0.9772706935123042,
+      "cum_explained_variance": 0.8205322653115434
+    }
+  },
+  "decision": {
+    "dim_gov": 2,
+    "strategy": "TUCKER",
+    "verdict": "H_manifold CONFIRMED \u2014 dim(M_gov)=2 with trustworthiness=0.9587 >= 0.85",
+    "proceed": "Proceed S1 -> S2 -> S3 with Tucker decomposition",
+    "crossing_dim_0p85": 2,
+    "best_dim": 5,
+    "best_trustworthiness": 0.9696122296793439,
+    "trustworthiness_by_dim": {
+      "2": 0.9586741237882178,
+      "3": 0.9648948545861298,
+      "4": 0.9693840417598805,
+      "5": 0.9696122296793439
+    },
+    "pca_triangulation": {
+      "pca_best_dim": 5,
+      "pca_best_trustworthiness": 0.9772706935123042,
+      "umap_minus_pca": -0.007658463832960316,
+      "note": "UMAP >> PCA -> strongly non-linear manifold; UMAP ~ PCA -> estimate robust / structure near-linear"
+    }
+  }
+}

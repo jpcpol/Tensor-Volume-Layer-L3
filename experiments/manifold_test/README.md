@@ -77,8 +77,31 @@ the n≥30 synthetic corpus for the definitive gate.
 | PROBLEM-3: `n_neighbors` hard-coded to 5 | Sweep {3,4,5}, keep best cell |
 | PROBLEM-4: single seed (UMAP is stochastic) | 10 seeds, mean ± std + PCA triangulation |
 
+### Definitive run (n=90 synthetic corpus) — `s4_definitive.py`
+
+Runs on the S1 synthetic corpus (90 sessions, 30 per graph G1/G2/G3). Each
+tensor `T^(s)` (11×4×4×12) is collapsed to its representative vector
+v = mean over (stage, agent, cycle). Same audited UMAP+PCA harness.
+
+| dim | UMAP tw (mean ± std) | PCA tw | PCA cum. var. |
+|-----|----------------------|--------|---------------|
+| **2** | **0.9587 ± 0.003** | 0.9458 | 64.2% |
+| **3** | **0.9649 ± 0.001** | 0.9616 | 71.7% |
+| 4 | 0.9694 ± 0.002 | 0.9729 | 77.6% |
+| 5 | 0.9696 ± 0.002 | 0.9773 | 82.1% |
+
+**H_manifold CONFIRMED.** With sufficient density UMAP and PCA converge
+(gap ≈ 0.01 vs. −0.198 at n=12) — the n=12 discordance was a sampling artifact.
+Trustworthiness crosses 0.85 at **dim=2** by both methods. **Gate: TUCKER.**
+
+```bash
+python s4_definitive.py   # writes results/manifold_results_definitive.json + s4def_*.png
+```
+
 ## Caveats
 
-- n=12 is small for UMAP; PCA is the more reliable estimator at this size.
-- The definitive S4 runs on the S1 synthetic corpus (n≥30, ≥6 sessions per
-  causal graph), where UMAP has enough density to corroborate PCA.
+- n=12 is small for UMAP; PCA is the more reliable estimator at that size — the
+  n=90 definitive run resolves this and corroborates PCA with UMAP.
+- The collapse v = mean over (stage, agent, cycle) discards intra-session
+  temporal structure; the manifold test only concerns the *static* governance
+  state distribution. Causal/temporal structure is tested separately in S3.

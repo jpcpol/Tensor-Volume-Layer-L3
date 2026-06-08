@@ -181,7 +181,7 @@ This is Step S4 of the experimental plan — run first, cheapest gate.
 
 | Step | Task | Method | Status | Notes |
 |------|------|--------|--------|-------|
-| **S4** | Manifold test: is dim(M_gov) << ambient? | UMAP + PCA on L2 corpus (S1–S5), n=12 | ✅ Preliminary (§6.3) | dim(M_gov)≈3, PCA tw=0.99 → Tucker; re-run on n≥30 synthetic corpus |
+| **S4** | Manifold test: is dim(M_gov) << ambient? | UMAP + PCA; n=12 prelim (§6.3) + n=90 definitive (§6.5) | ✅ Confirmed (§6.5) | dim(M_gov)≈2–3, tw≥0.96 by both methods → **TUCKER** |
 | S1 | Synthetic pipeline generator | New `causal_generator.py`; 3 known causal graphs (G1–G3), 90 sessions | ✅ Done (§6.4) | Signal validated: true-edge \|r\|=0.53 vs control 0.12 |
 | S2 | C = Tucker on {T⁽ˢ⁾} stack; measure κ(V) | `tensorly` Tucker-HOOI | Pending | CPU-only |
 | S3 | Causal conservation test: does M(V) recover ground-truth causal graph? | Compare recovered vs. known causal edges | Pending | Pre-register before running |
@@ -262,6 +262,21 @@ S1 produces the corpus that S2 (Tucker), S3 (causal conservation), and the defin
 | **overall** | **0.532** | **0.117** | **+0.415** |
 
 The injected causal signal is cleanly recoverable; every edge sits well above control. This is a *generator* self-test, not the S3 causal test — S3 will apply a formal causal-recovery method and report F1 against `ground_truth.json` with a pre-registered threshold (target F1 ≥ 0.70). The corpus is ground-truth-labelled and ready for S2/S3 and the definitive n=90 S4 re-run.
+
+### 6.5 S4 Definitive: Manifold Test on n=90 — H_manifold CONFIRMED
+
+The §6.3 S4 run (n=12 L2 corpus) was preliminary: PCA recovered a low-dimensional manifold but UMAP underestimated it because n=12 is too sparse for its k-NN graph (UMAP−PCA gap −0.198). The definitive run uses the S1 synthetic corpus (n=90, 30 per graph), with each session tensor collapsed to its representative vector v = mean over (stage, agent, cycle). The harness is the audited multi-seed UMAP + deterministic PCA from §6.3.
+
+| dim | UMAP tw (mean ± std, 10 seeds) | PCA tw | PCA cum. variance |
+|-----|-------------------------------|--------|-------------------|
+| **2** | **0.9587 ± 0.003** | 0.9458 | 64.2% |
+| **3** | **0.9649 ± 0.001** | 0.9616 | 71.7% |
+| 4 | 0.9694 ± 0.002 | 0.9729 | 77.6% |
+| 5 | 0.9696 ± 0.002 | 0.9773 | 82.1% |
+
+**Result.** With sufficient density UMAP and PCA converge (gap ≈ 0.01, vs. −0.198 at n=12) — confirming the n=12 discordance was a sampling artifact, not a property of the data. Trustworthiness crosses the pre-registered 0.85 acceptance threshold at **dim=2** by *both* methods (UMAP 0.959, PCA 0.946). The curve is near-flat from dim 2 to 5 while explained variance rises slowly (64%→82%), indicating the governance manifold genuinely lives in ~2–3 dimensions and extra dimensions add little structure.
+
+**Gate decision: TUCKER (confirmed).** dim(M_gov) ≈ 2–3 with trustworthiness ≥ 0.96 at dim=3. The Governance Manifold Hypothesis is supported on the definitive corpus. The manifold is low-dimensional and approximately linear, so the multilinear Tucker decomposition is the empirically motivated composition operator C. The C-gate is closed positive. **Proceed to S2** (Tucker-HOOI implementation, rank sweep, κ(V) measurement).
 
 ---
 
