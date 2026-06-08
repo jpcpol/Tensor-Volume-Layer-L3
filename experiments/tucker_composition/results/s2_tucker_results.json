@@ -1,0 +1,462 @@
+{
+  "experiment": "S2 \u2014 Tucker composition operator C",
+  "corpus": "S1 synthetic (90 sessions, 30 per graph)",
+  "config": {
+    "ambient_ranks": {
+      "dim": 3,
+      "stage": 3,
+      "agent": 3,
+      "cycle": 6
+    },
+    "session_rank_sweep": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8
+    ],
+    "variance_budget": 0.98,
+    "tractability_n_levels": [
+      10,
+      20,
+      30
+    ],
+    "noise_note": "S1 corpus has irreducible injected noise; rel. Frobenius error floors ~8%; variance-explained is the meaningful budget",
+    "dim_rank_justification": "S4 confirmed dim(M_gov) ~ 2-3"
+  },
+  "analysis_a_rank_sweep": {
+    "G1": [
+      {
+        "session_rank": 1,
+        "core_shape": [
+          1,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 162,
+        "reconstruction_error": 0.13795973360538483,
+        "variance_explained": 0.9809671119035313,
+        "compression_ratio": 197.38317757009347,
+        "n_params_full": 63360,
+        "n_params_tucker": 321
+      },
+      {
+        "session_rank": 2,
+        "core_shape": [
+          2,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 324,
+        "reconstruction_error": 0.12803781032562256,
+        "variance_explained": 0.9836063191270199,
+        "compression_ratio": 123.50877192982456,
+        "n_params_full": 63360,
+        "n_params_tucker": 513
+      },
+      {
+        "session_rank": 3,
+        "core_shape": [
+          3,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 486,
+        "reconstruction_error": 0.12257294356822968,
+        "variance_explained": 0.9849758735050196,
+        "compression_ratio": 89.87234042553192,
+        "n_params_full": 63360,
+        "n_params_tucker": 705
+      },
+      {
+        "session_rank": 4,
+        "core_shape": [
+          4,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 648,
+        "reconstruction_error": 0.1193045899271965,
+        "variance_explained": 0.9857664148223035,
+        "compression_ratio": 70.63545150501672,
+        "n_params_full": 63360,
+        "n_params_tucker": 897
+      },
+      {
+        "session_rank": 5,
+        "core_shape": [
+          5,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 810,
+        "reconstruction_error": 0.11798683553934097,
+        "variance_explained": 0.9860791066394126,
+        "compression_ratio": 58.18181818181818,
+        "n_params_full": 63360,
+        "n_params_tucker": 1089
+      },
+      {
+        "session_rank": 6,
+        "core_shape": [
+          6,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 972,
+        "reconstruction_error": 0.11713388562202454,
+        "variance_explained": 0.9862796528390865,
+        "compression_ratio": 49.46135831381733,
+        "n_params_full": 63360,
+        "n_params_tucker": 1281
+      },
+      {
+        "session_rank": 8,
+        "core_shape": [
+          8,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 1296,
+        "reconstruction_error": 0.11600612103939056,
+        "variance_explained": 0.9865425798813943,
+        "compression_ratio": 38.054054054054056,
+        "n_params_full": 63360,
+        "n_params_tucker": 1665
+      }
+    ],
+    "G2": [
+      {
+        "session_rank": 1,
+        "core_shape": [
+          1,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 162,
+        "reconstruction_error": 0.15192489326000214,
+        "variance_explained": 0.976918826807937,
+        "compression_ratio": 197.38317757009347,
+        "n_params_full": 63360,
+        "n_params_tucker": 321
+      },
+      {
+        "session_rank": 2,
+        "core_shape": [
+          2,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 324,
+        "reconstruction_error": 0.1344100832939148,
+        "variance_explained": 0.9819339295089229,
+        "compression_ratio": 123.50877192982456,
+        "n_params_full": 63360,
+        "n_params_tucker": 513
+      },
+      {
+        "session_rank": 3,
+        "core_shape": [
+          3,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 486,
+        "reconstruction_error": 0.12770068645477295,
+        "variance_explained": 0.9836925346789798,
+        "compression_ratio": 89.87234042553192,
+        "n_params_full": 63360,
+        "n_params_tucker": 705
+      },
+      {
+        "session_rank": 4,
+        "core_shape": [
+          4,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 648,
+        "reconstruction_error": 0.12551753222942352,
+        "variance_explained": 0.9842453491030356,
+        "compression_ratio": 70.63545150501672,
+        "n_params_full": 63360,
+        "n_params_tucker": 897
+      },
+      {
+        "session_rank": 5,
+        "core_shape": [
+          5,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 810,
+        "reconstruction_error": 0.12430165708065033,
+        "variance_explained": 0.9845490980470044,
+        "compression_ratio": 58.18181818181818,
+        "n_params_full": 63360,
+        "n_params_tucker": 1089
+      },
+      {
+        "session_rank": 6,
+        "core_shape": [
+          6,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 972,
+        "reconstruction_error": 0.12353766709566116,
+        "variance_explained": 0.9847384448085617,
+        "compression_ratio": 49.46135831381733,
+        "n_params_full": 63360,
+        "n_params_tucker": 1281
+      },
+      {
+        "session_rank": 8,
+        "core_shape": [
+          8,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 1296,
+        "reconstruction_error": 0.12234359979629517,
+        "variance_explained": 0.985032043588884,
+        "compression_ratio": 38.054054054054056,
+        "n_params_full": 63360,
+        "n_params_tucker": 1665
+      }
+    ],
+    "G3": [
+      {
+        "session_rank": 1,
+        "core_shape": [
+          1,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 162,
+        "reconstruction_error": 0.14412519335746765,
+        "variance_explained": 0.9792279286396726,
+        "compression_ratio": 197.38317757009347,
+        "n_params_full": 63360,
+        "n_params_tucker": 321
+      },
+      {
+        "session_rank": 2,
+        "core_shape": [
+          2,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 324,
+        "reconstruction_error": 0.1315774917602539,
+        "variance_explained": 0.9826873636620803,
+        "compression_ratio": 123.50877192982456,
+        "n_params_full": 63360,
+        "n_params_tucker": 513
+      },
+      {
+        "session_rank": 3,
+        "core_shape": [
+          3,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 486,
+        "reconstruction_error": 0.12383372336626053,
+        "variance_explained": 0.9846652089572485,
+        "compression_ratio": 89.87234042553192,
+        "n_params_full": 63360,
+        "n_params_tucker": 705
+      },
+      {
+        "session_rank": 4,
+        "core_shape": [
+          4,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 648,
+        "reconstruction_error": 0.1210259348154068,
+        "variance_explained": 0.9853527231020569,
+        "compression_ratio": 70.63545150501672,
+        "n_params_full": 63360,
+        "n_params_tucker": 897
+      },
+      {
+        "session_rank": 5,
+        "core_shape": [
+          5,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 810,
+        "reconstruction_error": 0.12005376070737839,
+        "variance_explained": 0.9855870945400156,
+        "compression_ratio": 58.18181818181818,
+        "n_params_full": 63360,
+        "n_params_tucker": 1089
+      },
+      {
+        "session_rank": 6,
+        "core_shape": [
+          6,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 972,
+        "reconstruction_error": 0.11920338124036789,
+        "variance_explained": 0.9857905539008636,
+        "compression_ratio": 49.46135831381733,
+        "n_params_full": 63360,
+        "n_params_tucker": 1281
+      },
+      {
+        "session_rank": 8,
+        "core_shape": [
+          8,
+          3,
+          3,
+          3,
+          6
+        ],
+        "kappa": 1296,
+        "reconstruction_error": 0.11791802197694778,
+        "variance_explained": 0.9860953400930441,
+        "compression_ratio": 38.054054054054056,
+        "n_params_full": 63360,
+        "n_params_tucker": 1665
+      }
+    ]
+  },
+  "analysis_b_tractability": {
+    "G1": [
+      {
+        "n_sessions": 10,
+        "r0_star": 1,
+        "variance_explained": 0.9822230707173298,
+        "kappa": 162
+      },
+      {
+        "n_sessions": 20,
+        "r0_star": 1,
+        "variance_explained": 0.9816137349794063,
+        "kappa": 162
+      },
+      {
+        "n_sessions": 30,
+        "r0_star": 1,
+        "variance_explained": 0.9809671119035313,
+        "kappa": 162
+      }
+    ],
+    "G2": [
+      {
+        "n_sessions": 10,
+        "r0_star": 1,
+        "variance_explained": 0.9805000576790357,
+        "kappa": 162
+      },
+      {
+        "n_sessions": 20,
+        "r0_star": 2,
+        "variance_explained": 0.9835316731448778,
+        "kappa": 324
+      },
+      {
+        "n_sessions": 30,
+        "r0_star": 2,
+        "variance_explained": 0.9819339295089229,
+        "kappa": 324
+      }
+    ],
+    "G3": [
+      {
+        "n_sessions": 10,
+        "r0_star": 1,
+        "variance_explained": 0.9807238709775978,
+        "kappa": 162
+      },
+      {
+        "n_sessions": 20,
+        "r0_star": 2,
+        "variance_explained": 0.9819059386328648,
+        "kappa": 324
+      },
+      {
+        "n_sessions": 30,
+        "r0_star": 2,
+        "variance_explained": 0.9826873636620803,
+        "kappa": 324
+      }
+    ]
+  },
+  "verdict": {
+    "property_4_holds": true,
+    "sublinear_margin": 0.75,
+    "per_graph": {
+      "G1": {
+        "r0_at_n10": 1,
+        "r0_at_n30": 1,
+        "r0_ratio": 1.0,
+        "n_ratio": 3.0,
+        "sublinear": true
+      },
+      "G2": {
+        "r0_at_n10": 1,
+        "r0_at_n30": 2,
+        "r0_ratio": 2.0,
+        "n_ratio": 3.0,
+        "sublinear": true
+      },
+      "G3": {
+        "r0_at_n10": 1,
+        "r0_at_n30": 2,
+        "r0_ratio": 2.0,
+        "n_ratio": 3.0,
+        "sublinear": true
+      }
+    }
+  }
+}

@@ -183,7 +183,7 @@ This is Step S4 of the experimental plan — run first, cheapest gate.
 |------|------|--------|--------|-------|
 | **S4** | Manifold test: is dim(M_gov) << ambient? | UMAP + PCA; n=12 prelim (§6.3) + n=90 definitive (§6.5) | ✅ Confirmed (§6.5) | dim(M_gov)≈2–3, tw≥0.96 by both methods → **TUCKER** |
 | S1 | Synthetic pipeline generator | New `causal_generator.py`; 3 known causal graphs (G1–G3), 90 sessions | ✅ Done (§6.4) | Signal validated: true-edge \|r\|=0.53 vs control 0.12 |
-| S2 | C = Tucker on {T⁽ˢ⁾} stack; measure κ(V) | `tensorly` Tucker-HOOI | Pending | CPU-only |
+| S2 | C = Tucker on {T⁽ˢ⁾} stack; measure κ(V) | `tensorly` Tucker-HOOI | ✅ Done (§6.6) | 98% var @ r₀=1, 197× compress; Property 4 holds (κ sub-linear) |
 | S3 | Causal conservation test: does M(V) recover ground-truth causal graph? | Compare recovered vs. known causal edges | Pending | Pre-register before running |
 | S5 | O(n²) flat vs O(κ) cost contrast | `fa_dme` on AMD MI300X | **Deferred → AMD-Instinct** | Gate: C validated on S1–S4 |
 
@@ -277,6 +277,32 @@ The §6.3 S4 run (n=12 L2 corpus) was preliminary: PCA recovered a low-dimension
 **Result.** With sufficient density UMAP and PCA converge (gap ≈ 0.01, vs. −0.198 at n=12) — confirming the n=12 discordance was a sampling artifact, not a property of the data. Trustworthiness crosses the pre-registered 0.85 acceptance threshold at **dim=2** by *both* methods (UMAP 0.959, PCA 0.946). The curve is near-flat from dim 2 to 5 while explained variance rises slowly (64%→82%), indicating the governance manifold genuinely lives in ~2–3 dimensions and extra dimensions add little structure.
 
 **Gate decision: TUCKER (confirmed).** dim(M_gov) ≈ 2–3 with trustworthiness ≥ 0.96 at dim=3. The Governance Manifold Hypothesis is supported on the definitive corpus. The manifold is low-dimensional and approximately linear, so the multilinear Tucker decomposition is the empirically motivated composition operator C. The C-gate is closed positive. **Proceed to S2** (Tucker-HOOI implementation, rank sweep, κ(V) measurement).
+
+### 6.6 S2: Tucker Composition Operator — κ(V) and Tractability
+
+S2 implements C = Tucker decomposition. The n session tensors of each causal graph (each 11×4×4×12) are stacked into a 5th-order tensor 𝒯 ∈ ℝ^(n×11×4×4×12) with mode-0 = sessions; Tucker-HOOI (`tensorly`) compresses it to a core G of multilinear rank (r₀, 3, 3, 3, 6). The core G is V; κ(V) is the product of core dimensions. The ambient dimension-mode rank is fixed at 3, justified by the S4 manifold result. The session-mode rank r₀ is the quantity under test (Property 4).
+
+**Analysis A — rank sweep.** Even at r₀=1, Tucker explains ~98% of variance with 197× compression across all three graphs:
+
+| graph | r₀=1 var. explained | r₀=1 compression | r₀=8 var. explained |
+|-------|--------------------|------------------|---------------------|
+| G1 | 0.981 | 197× | 0.987 |
+| G2 | 0.977 | 197× | 0.985 |
+| G3 | 0.979 | 197× | 0.986 |
+
+The 30 sessions of each graph share a near-identical latent structure (they share one causal graph), so a single session-pattern already captures the structure. Relative Frobenius error floors at ~8–12% even with full ambient ranks — this is the irreducible injected noise of the S1 corpus (Tucker correctly captures structure and discards noise), so variance explained, not an error ceiling, is the meaningful budget.
+
+**Analysis B — Property 4 (Tractability).** Minimal session-rank r₀* to reach variance ≥ 0.98 as n_sessions grows:
+
+| graph | r₀* @ n=10 | r₀* @ n=20 | r₀* @ n=30 | r₀ ratio | verdict |
+|-------|-----------|-----------|-----------|----------|---------|
+| G1 | 1 | 1 | 1 | 1.00 | sub-linear |
+| G2 | 1 | 2 | 2 | 2.00 | sub-linear |
+| G3 | 1 | 2 | 2 | 2.00 | sub-linear |
+
+As n triples (10→30), r₀* grows at most 2× (or stays constant), well below the linear ratio of 3.0. **Property 4 holds: κ(V) grows sub-linearly with n_sessions** — C is tractable for continuous pipelines, satisfying the L4 Efficiency Hypothesis precondition that κ(V) ≪ O(n²).
+
+**Status.** C = Tucker satisfies Property 3 (dimensional stability, by construction — the 11-dim mode is preserved) and Property 4 (tractability, measured). Property 1 (causal preservation) is the subject of **S3**: does M(V) recover the ground-truth causal edges? Property 2 (temporal coherence) is partially exercised (cycle mode retained at rank 6) and fully tested alongside S3.
 
 ---
 
