@@ -74,13 +74,23 @@ disambiguated before any claim about Property 1.
 
 ---
 
-# S3 — Run 2 Result: INCONCLUSIVE (method ceiling), with a publishable trade-off
+# S3 — Run 2 Result: INCONCLUSIVE, with a publishable trade-off
 
 Run 2 (PCMCI, pre-registered in AMENDMENT 1, commit ed60d77) fixed run-1's
-false-positive problem but hit a recall ceiling. Per the amended attribution
-rule, since the raw control still falls below 0.70, **we stop iterating methods
-and report the limit** — this is pre-registration discipline, not a failure to
-try harder.
+false-positive problem but the raw control landed just below the 0.70 ceiling.
+Per the amended attribution rule we **stop and report the limit** — this is
+pre-registration discipline, not a failure to try harder.
+
+> **External methodological review (2026-06-08).** A consultant reviewed runs 1–2
+> for methodological validity. Verdicts: (1) the attribution rule is sound and the
+> stop is correct — *but* 0.667 and 0.15 both trip the rule while being very
+> different scientific situations, so the discussion must separate the
+> *experimental conclusion* (INCONCLUSIVE) from the *accumulated evidence* (0.667
+> ≈ 0.70). (2) Run 2 is not invalidated; it correctly answers the pre-registered
+> question, which turned out to be more restrictive than initially understood.
+> (3) Granger→PCMCI is controlled methodological debugging, not method-shopping.
+> (4) The κ(V)–F1 trade-off, not the PASS/FAIL of Property 1, is the strongest
+> result of S3. The reframing below adopts this review.
 
 ## Result (run 2, 2026-06-08)
 
@@ -91,13 +101,55 @@ try harder.
 
 PCMCI achieved **precision 1.00** on raw (zero transitive/reverse FPs — it solved
 run-1's exact failure), but recovered only the **first edge of each causal chain**
-(`3→5`, `7→6`, `4→8`) and missed the **second edge** (`5→6`, `6→1`, `8→9`). With
-only 12 cycles per session and a strict ≥50% majority vote across 30 sessions,
-the attenuated second-link signal does not reach significance in enough sessions.
-Raw F1=0.667 sits just below the 0.70 ceiling.
+(`3→5`, `7→6`, `4→8`) and missed the **second edge** (`5→6`, `6→1`, `8→9`).
 
-**Verdict: INCONCLUSIVE (method ceiling).** The amended rule fires: raw < 0.70 →
-the method, not C, is the bottleneck → stop and report.
+**What this actually measures (consultant reframing).** The bottleneck is **not**
+the algorithm and **not** a defect in the corpus. PCMCI *can* recover the full
+chain (see the diagnostic below). What Run 2 demonstrates is narrower and
+legitimate:
+
+> The second-link causal signal is not strong enough to survive an *independent
+> per-session estimate followed by a majority vote* — the unit of analysis that
+> the pre-registration fixed. The pre-registered question turned out to be more
+> restrictive than we understood when we wrote it.
+
+So the correct framing is not "the method failed" but "Run 2 correctly answered
+the pre-registered question; the question demanded more per-session temporal
+evidence than an attenuated second link provides in 12 cycles."
+
+**Conclusion vs. evidence (consultant point 1).** The control fell **0.033**
+below the pre-registered threshold. By experimental discipline the classification
+stays **INCONCLUSIVE**, but the accumulated evidence shows the method is
+*approaching* the required ceiling — qualitatively different from a method that
+fails outright (e.g. raw = 0.15). Both trip the same rule; they are not the same
+scientific situation.
+
+## Diagnostic (post-hoc, NOT pre-registered — for review only)
+
+To locate the bottleneck we applied PCMCI to the RAW corpus three ways (this
+diagnostic does **not** change Run 2's verdict; it is reported, not substituted):
+
+| Aggregation | True edges found (of 2/graph) | Total predictions |
+|-------------|-------------------------------|-------------------|
+| Per-session + majority vote (Run-2 unit of analysis) | **1 / 2** (first link) | 1 |
+| Sessions **concatenated** (30×12 = 360 points) | **2 / 2** (both links) | 4 |
+| Union over per-session fits | 2 / 2 | ~85 (noise) |
+
+Concatenation recovers BOTH true edges in all three graphs with only 4 total
+predictions. This confirms the recall ceiling is a property of the
+**pre-registered per-session-plus-vote unit of analysis**, not a bug and not an
+irrecoverable corpus.
+
+> ⚠️ **This is a trap, not an option.** It is tempting to say "concatenation
+> works, so switch to concatenation." That would change the **unit of analysis
+> after seeing the results** — the exact move pre-registration exists to prevent.
+> We therefore do **not** rerun Run 2 with concatenation. The diagnostic is
+> reported to explain the ceiling; the pre-registered Run 2 stands as-is. Any use
+> of concatenation must be a NEW pre-registration with the unit of analysis fixed
+> in advance (see Decision below).
+
+**Verdict: INCONCLUSIVE** (control 0.033 below ceiling; method approaching it).
+The amended rule fires: raw < 0.70 → stop and report, do not iterate further.
 
 ## The publishable finding: κ(V)-vs-causal-F1 trade-off
 
@@ -118,27 +170,40 @@ achieved 98% variance (S2) **trades away causal structure** — the semantic-col
 mechanism §3 warns about, now measured as a curve rather than asserted. See
 `results/s3_kappa_vs_causalf1.png`.
 
-**Important caveat:** because the raw ceiling is 0.667, the reconstruction
-absolute F1 values are not directly interpretable as "C preserves X% of
-causality." The *shape* (monotone increase with κ) is the robust finding; the
-*levels* are confounded by the method's recall ceiling.
+**Important caveat (and a point where we are more cautious than the reviewer).**
+The reviewer suggested the trade-off "would likely survive even if a future
+corpus clears the 0.70 ceiling." We agree only for the **shape**. Because the raw
+ceiling is 0.667, the reconstruction *absolute* F1 values are not interpretable as
+"C preserves X% of causality," and if S1-bis lifts the raw ceiling the curve's
+*levels* will re-scale — its slope could change. What survives with confidence is
+the **direction** (more compression → less causal structure), not the quantitative
+curve. We report the monotone direction as robust and the levels as provisional.
 
 ## Decision (per pre-registration)
 
-1. **Stop iterating discovery methods.** The amended rule explicitly forbids
-   indefinite method-shopping once raw < 0.70. Two methods (Granger, PCMCI) have
-   now hit method-side ceilings on a 12-cycle-per-session corpus.
-2. **Property 1 is not cleanly testable on the current corpus geometry.** The
-   bottleneck is temporal resolution: 12 cycles is too short for robust
-   per-session causal discovery of a 2-link chain.
-3. **Two clean paths forward (each a NEW pre-registration, not a method swap):**
-   - **S1-bis (corpus revision):** regenerate the corpus with longer sessions
-     (e.g. t_cycles = 40–60) so per-session causal discovery has the temporal
-     resolution to recover both chain links → re-establishes a raw ceiling ≥ 0.70,
-     after which the reconstruction test becomes a clean Property-1 gate.
-   - **Report the trade-off as the L3 causal result:** the κ(V)-vs-F1 curve is
-     itself a characterization of C (compression vs. causal fidelity), reportable
-     independent of the raw-ceiling issue, with the caveat above.
+1. **Stop iterating discovery methods.** The amended rule forbids indefinite
+   method-shopping once raw < 0.70. Two methods (Granger, PCMCI) have now reached
+   their ceiling under the pre-registered unit of analysis. Per the reviewer, this
+   stop is correct and is *not* method-shopping — it was controlled methodological
+   debugging with an explicit stop rule that we honored.
+2. **The bottleneck is the unit of analysis, not "a bad corpus" and not a bug.**
+   The pre-registered per-session-plus-vote estimate demands more temporal
+   evidence than an attenuated second link supplies in 12 cycles. The corpus
+   carries the signal (concatenation recovers both edges); the per-session unit of
+   analysis is simply more stringent than anticipated.
+3. **Two clean paths forward — each a NEW pre-registration with the unit of
+   analysis fixed in advance (never a post-hoc swap):**
+   - **Path A — S1-bis (longer sessions):** regenerate the corpus with
+     t_cycles ≈ 40–60 so the *per-session* unit of analysis (unchanged) has the
+     temporal resolution to recover both chain links → re-establishes a raw
+     ceiling ≥ 0.70 → the reconstruction test becomes a clean Property-1 gate.
+   - **Path B — new unit of analysis, pre-registered up front:** if a future
+     pre-registration *fixes* a pooled/concatenated unit of analysis BEFORE
+     looking at results, that is legitimate. Reusing concatenation now, after the
+     diagnostic, is the trap flagged above and is explicitly off-limits.
+   - **Either way — report the trade-off as the L3 causal result:** the κ(V)-vs-F1
+     curve characterizes C (compression vs. causal fidelity), reportable
+     independent of the raw-ceiling issue, with the direction/levels caveat above.
 
 ## What still stands
 
