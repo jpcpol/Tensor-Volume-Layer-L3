@@ -205,9 +205,92 @@ curve. We report the monotone direction as robust and the levels as provisional.
      curve characterizes C (compression vs. causal fidelity), reportable
      independent of the raw-ceiling issue, with the direction/levels caveat above.
 
-## What still stands
+## What still stands (as of runs 1–2)
 
 - S4 (manifold, dim≈2–3) and S2 (κ(V) sub-linear, Property 4) are unaffected.
 - Property 1 remains **open**. Run 2 strengthens the *qualitative* claim that
   low-rank Tucker erodes causal structure (monotone κ-F1 curve), but a clean
   quantitative gate awaits a longer-session corpus (S1-bis).
+
+---
+
+# S3-bis — Result: CLEAN REFUTATION of Property 1
+
+S3-bis (Path A) ran the **byte-identical** PCMCI method and per-session+vote unit
+of analysis (imported from `run_s3_run2.py`) on the S1-bis corpus (t_cycles=48,
+the only change), per the joint pre-registration `PRE_REGISTRATION_S1bis.md`
+(commit d38a366). The two-stage gate resolved cleanly.
+
+## Result (S3-bis, 2026-06-08)
+
+| Condition | micro-F1 | precision | recall |
+|-----------|---------|-----------|--------|
+| Raw corpus (Stage-1 precondition) | **1.000** | 1.000 | 1.000 |
+| Tucker reconstruction (Stage-2 primary) | **0.135** | 0.072 | 1.000 |
+
+**Stage 1 — precondition MET.** With 48 cycles and the unchanged unit of
+analysis, PCMCI recovers all 6 ground-truth edges across G1/G2/G3 with zero false
+positives — raw F1 = **1.000**. This quantitatively confirms the consultant's
+diagnosis: the run-2 ceiling of 0.667 was a shortage of per-session temporal
+degrees of freedom for the partial-correlation test on the second chain edge,
+not the method and not C. Longer sessions fix it. The unit of analysis is no
+longer the bottleneck.
+
+**Stage 2 — Property 1 REFUTED.** With a valid raw ceiling of 1.000, the
+reconstruction result is unambiguous: F1 = **0.135** (77 false positives, perfect
+recall). Low-rank Tucker reconstruction invents dozens of spurious causal edges.
+Because the raw control is perfect, this collapse is attributable to **C, not the
+method**. This is a **clean refutation**, not an inconclusive: C = low-rank Tucker
+achieves 98 % variance (S2) while **destroying causal structure** — the semantic
+collapse §3 warned about, now a pre-registered, conclusive negative result.
+
+## Secondary — κ(V) vs causal-F1, now with interpretable levels
+
+With raw F1 = 1.000, the trade-off **levels** are interpretable (closing the
+direction-only caveat of run 2):
+
+| r0 | κ(V) | reconstruction causal-F1 |
+|----|------|--------------------------|
+| 1 | 162 | 0.090 |
+| 2 | 324 | 0.104 |
+| 3 | 486 | 0.135 |
+| 5 | 810 | 0.174 |
+| 8 | 1296 | 0.245 |
+
+The curve is monotone (more κ → more causal structure) **and** its ceiling is
+low: even at κ=1296 (minimal compression in the tested range), F1 reaches only
+0.245 against a perfect control. **No tested compression regime preserves
+causality.** This is stronger than run 2's direction-only finding.
+
+## Implication for C = low-rank Tucker
+
+Property 1 (causal preservation) is **refuted** for low-rank Tucker as the sole
+composition operator C. C satisfies Property 3 (dimensional stability) and
+Property 4 (tractability, κ(V) sub-linear), and achieves high variance fidelity —
+but it does **not** preserve the causal structure between quality dimensions.
+
+This does not sink L3; it sharpens it. The result means **variance-optimal
+compression and causality-preserving compression are different objectives**, and
+a composition operator for governance must optimize for the latter, not the
+former. Candidate directions (each a future, separately pre-registered
+experiment, not a post-hoc patch):
+
+1. **Causality-aware C:** add a causal-structure-preserving penalty to the Tucker
+   objective, or use a decomposition that respects the lagged-influence graph
+   (e.g. a structured/sparse core constrained to the causal support).
+2. **Higher cycle-mode rank as a knob:** the κ-F1 curve suggests causal fidelity
+   improves with the cycle-mode rank; characterize whether any tractable rank
+   reaches an acceptable F1, accepting the variance/causality trade-off explicitly.
+3. **Report the negative as a primary L3 contribution:** "low-rank Tucker is a
+   variance-optimal but causality-destroying composition operator" is a clean,
+   publishable finding that motivates the search for causality-aware C.
+
+## What still stands
+
+- S4 (manifold, dim≈2–3) and S2 (κ(V) sub-linear, Property 4) are unaffected and
+  remain positive results.
+- Property 1 is now **refuted** for low-rank Tucker (not open) — a stronger,
+  pre-registered, method-clean outcome than the inconclusive runs 1–2.
+- The pre-registration discipline paid off: by fixing the two-stage gate before
+  the corpus existed, the refutation is attributable to C rather than to method
+  choices made after seeing data.

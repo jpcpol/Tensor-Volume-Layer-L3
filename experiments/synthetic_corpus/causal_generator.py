@@ -158,7 +158,31 @@ class GenConfig:
     baseline_high: float = 0.90
     stage_perturb: float = 0.04 # stage-specific offset magnitude in the tensor lift
     agent_perturb: float = 0.04 # agent-specific offset magnitude in the tensor lift
+    # Shock-dimension AR(1) recovery rate bounds (S1 defaults). For longer
+    # sessions these are scaled a priori by the rule new = old / (t_cycles/12)
+    # via GenConfig.scaled_for_length() — see PRE_REGISTRATION_S1bis.md.
+    recover_rate_low: float = 0.04
+    recover_rate_high: float = 0.12
     seed: int = 1234
+
+    @classmethod
+    def scaled_for_length(cls, t_cycles: int, seed: int, n_sessions: int = 30) -> "GenConfig":
+        """
+        Build a config for a target session length, scaling the length-sensitive
+        parameters (recover_rate, drift_std) by the a-priori rule
+        factor = t_cycles / 12, so accumulated drift and shock-recovery fraction
+        match the S1 (t_cycles=12) corpus. All other parameters are S1 defaults.
+        """
+        factor = t_cycles / 12.0
+        base = cls()  # S1 defaults
+        return cls(
+            n_sessions=n_sessions,
+            t_cycles=t_cycles,
+            drift_std=base.drift_std / factor,
+            recover_rate_low=base.recover_rate_low / factor,
+            recover_rate_high=base.recover_rate_high / factor,
+            seed=seed,
+        )
 
 
 # ─── Trajectory generation ───────────────────────────────────────────────────
@@ -187,7 +211,7 @@ def generate_trajectory(graph: CausalGraph, cfg: GenConfig, rng: np.random.Gener
     # lagged correlation with its child is pure noise (a flat signal carries no
     # information to propagate). We model it as a depressed level that recovers
     # toward baseline at a per-session random rate, with its own random walk.
-    recover_rate = rng.uniform(0.04, 0.12)          # per-cycle recovery fraction
+    recover_rate = rng.uniform(cfg.recover_rate_low, cfg.recover_rate_high)  # per-cycle recovery fraction
     walk_std = cfg.noise_std * 2.5                   # extra volatility on the shock dim
     shock_level = np.zeros(T_cyc)
     shock_level[0] = baselines[shock_i] - shock
@@ -326,19 +350,35 @@ def main() -> int:
         help="output directory",
     )
     parser.add_argument("--dry-run", action="store_true", help="print config and exit")
+    parser.add_argument(
+        "--scaled-length",
+        action="store_true",
+        help="S1-bis mode: scale recover_rate and drift_std a priori by "
+             "factor=(t_cycles/12) via GenConfig.scaled_for_length (see "
+             "PRE_REGISTRATION_S1bis.md). Use with --t-cycles 48 --seed 5678.",
+    )
     args = parser.parse_args()
 
-    cfg = GenConfig(
-        n_sessions=args.n_sessions,
-        t_cycles=args.t_cycles,
-        n_agents=args.n_agents,
-        lag=args.lag,
-        seed=args.seed,
-    )
+    if args.scaled_length:
+        # S1-bis: a-priori length-scaled config. Only n_sessions/t_cycles/seed
+        # are taken from CLI; the length-sensitive params follow the fixed rule.
+        cfg = GenConfig.scaled_for_length(
+            t_cycles=args.t_cycles, seed=args.seed, n_sessions=args.n_sessions,
+        )
+        title = "S1-bis — length-scaled synthetic causal corpus"
+    else:
+        cfg = GenConfig(
+            n_sessions=args.n_sessions,
+            t_cycles=args.t_cycles,
+            n_agents=args.n_agents,
+            lag=args.lag,
+            seed=args.seed,
+        )
+        title = "S1 — Synthetic causal corpus generator"
     graphs = default_graphs()
     out_dir = Path(args.out)
 
-    print("S1 — Synthetic causal corpus generator")
+    print(title)
     print(f"  Output: {out_dir}")
     print()
 

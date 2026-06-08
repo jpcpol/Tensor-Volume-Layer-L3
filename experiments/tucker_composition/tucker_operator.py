@@ -53,10 +53,22 @@ class TuckerCompositionOperator:
     """C: {T^(s)} → V (Tucker core), with a rank sweep for κ(V) characterization."""
 
     def stack(self, sessions: list[np.ndarray]) -> np.ndarray:
-        """Stack n session tensors into 𝒯 ∈ ℝ^(n × 11 × 4 × 4 × 12)."""
+        """
+        Stack n session tensors into 𝒯 ∈ ℝ^(n × 11 × 4 × 4 × t).
+
+        The dim/stage/agent modes are fixed (11, 4, 4); the cycle mode (t) is
+        free — S1 uses t=12, S1-bis uses t=48. Tucker compresses the cycle mode
+        to its rank regardless of t, so a longer corpus is valid input.
+        """
+        fixed = AMBIENT_SHAPE[:3]  # (11, 4, 4)
         for T in sessions:
-            if T.shape != AMBIENT_SHAPE:
-                raise ValueError(f"session tensor shape {T.shape} != {AMBIENT_SHAPE}")
+            if T.ndim != 4 or T.shape[:3] != fixed:
+                raise ValueError(
+                    f"session tensor shape {T.shape}; expected (11, 4, 4, t) "
+                    f"with fixed dim/stage/agent modes {fixed}"
+                )
+        if len({T.shape[3] for T in sessions}) != 1:
+            raise ValueError("all sessions must share the same cycle-mode length t")
         return np.stack(sessions, axis=0)
 
     def compose(self, tensor_5d: np.ndarray, rank: tuple[int, ...]) -> tuple[np.ndarray, list, TuckerResult]:

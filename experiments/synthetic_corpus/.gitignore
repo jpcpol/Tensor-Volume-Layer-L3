@@ -7,3 +7,10 @@ corpus/G3/
 # Keep the labelled ground truth and manifest under version control.
 !corpus/ground_truth.json
 !corpus/corpus_manifest.json
+
+# S1-bis corpus (reproducible: --scaled-length --t-cycles 48 --seed 5678).
+corpus_s1bis/G1/
+corpus_s1bis/G2/
+corpus_s1bis/G3/
+!corpus_s1bis/ground_truth.json
+!corpus_s1bis/corpus_manifest.json

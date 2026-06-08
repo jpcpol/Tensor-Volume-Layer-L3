@@ -17,12 +17,13 @@ S3 must recover. This is a generator self-test, NOT the S3 causal test itself.
 from __future__ import annotations
 
 import json
+import argparse
 from itertools import product
 from pathlib import Path
 
 import numpy as np
 
-CORPUS = Path(__file__).parent / "corpus"
+DEFAULT_CORPUS = Path(__file__).parent / "corpus"
 N_DIMS = 11
 
 
@@ -49,12 +50,18 @@ def lagged_corr(sessions: list[np.ndarray], i: int, j: int, lag: int) -> float:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="corpus self-test: lagged causal signal")
+    parser.add_argument("--corpus", type=str, default=str(DEFAULT_CORPUS),
+                        help="corpus directory (default: ./corpus)")
+    args = parser.parse_args()
+    CORPUS = Path(args.corpus)
+
     gt = json.loads((CORPUS / "ground_truth.json").read_text())
     manifest = json.loads((CORPUS / "corpus_manifest.json").read_text())
     lag = manifest["config"]["lag"]
     rng = np.random.default_rng(0)
 
-    print("S1 corpus sanity check (lagged Pearson r, lag=%d)" % lag)
+    print(f"corpus sanity check (lagged Pearson r, lag={lag})  [{CORPUS.name}]")
     print("=" * 65)
 
     all_true, all_ctrl = [], []

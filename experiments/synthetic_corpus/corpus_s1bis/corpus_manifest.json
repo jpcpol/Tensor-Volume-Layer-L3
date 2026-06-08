@@ -2,24 +2,24 @@
   "experiment": "S1 \u2014 Synthetic causal corpus",
   "config": {
     "n_sessions": 30,
-    "t_cycles": 12,
+    "t_cycles": 48,
     "n_agents": 4,
     "lag": 1,
     "noise_std": 0.03,
-    "drift_std": 0.01,
+    "drift_std": 0.0025,
     "baseline_low": 0.7,
     "baseline_high": 0.9,
     "stage_perturb": 0.04,
     "agent_perturb": 0.04,
-    "recover_rate_low": 0.04,
-    "recover_rate_high": 0.12,
-    "seed": 1234
+    "recover_rate_low": 0.01,
+    "recover_rate_high": 0.03,
+    "seed": 5678
   },
   "tensor_shape": [
     11,
     4,
     4,
-    12
+    48
   ],
   "dim_names": [
     "functional_correctness",
