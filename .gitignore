@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE
+.claude/
+.DS_Store
+Thumbs.db
+
+# Data / outputs (regenerables)
+experiments/outputs/
+benchmarks/results/
