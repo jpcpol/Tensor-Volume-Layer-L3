@@ -1,0 +1,133 @@
+{
+  "experiment": "S1 \u2014 Synthetic causal corpus",
+  "config": {
+    "n_sessions": 30,
+    "t_cycles": 12,
+    "n_agents": 4,
+    "lag": 1,
+    "noise_std": 0.03,
+    "drift_std": 0.01,
+    "baseline_low": 0.7,
+    "baseline_high": 0.9,
+    "stage_perturb": 0.04,
+    "agent_perturb": 0.04,
+    "seed": 1234
+  },
+  "tensor_shape": [
+    11,
+    4,
+    4,
+    12
+  ],
+  "dim_names": [
+    "functional_correctness",
+    "architectural_alignment",
+    "scalability_projection",
+    "security_risk",
+    "observability_coverage",
+    "testability",
+    "maintainability",
+    "technical_debt",
+    "performance",
+    "confidence",
+    "anomaly_score"
+  ],
+  "stages": [
+    "design",
+    "build",
+    "test",
+    "deploy"
+  ],
+  "graphs": {
+    "G1": {
+      "description": "security cascade: security_risk -> testability -> maintainability",
+      "shock_dim": "security_risk",
+      "shock_strength": 0.45,
+      "n_sessions": 30,
+      "edges": [
+        {
+          "src": "security_risk",
+          "dst": "testability",
+          "weight": 0.65,
+          "sign": 1
+        },
+        {
+          "src": "testability",
+          "dst": "maintainability",
+          "weight": 0.55,
+          "sign": 1
+        }
+      ],
+      "edge_index": [
+        [
+          3,
+          5
+        ],
+        [
+          5,
+          6
+        ]
+      ]
+    },
+    "G2": {
+      "description": "debt cascade: technical_debt -> maintainability -> architectural_alignment",
+      "shock_dim": "technical_debt",
+      "shock_strength": 0.45,
+      "n_sessions": 30,
+      "edges": [
+        {
+          "src": "technical_debt",
+          "dst": "maintainability",
+          "weight": 0.6,
+          "sign": 1
+        },
+        {
+          "src": "maintainability",
+          "dst": "architectural_alignment",
+          "weight": 0.5,
+          "sign": 1
+        }
+      ],
+      "edge_index": [
+        [
+          7,
+          6
+        ],
+        [
+          6,
+          1
+        ]
+      ]
+    },
+    "G3": {
+      "description": "observability cascade: observability_coverage -> performance -> confidence",
+      "shock_dim": "observability_coverage",
+      "shock_strength": 0.45,
+      "n_sessions": 30,
+      "edges": [
+        {
+          "src": "observability_coverage",
+          "dst": "performance",
+          "weight": 0.58,
+          "sign": 1
+        },
+        {
+          "src": "performance",
+          "dst": "confidence",
+          "weight": 0.62,
+          "sign": 1
+        }
+      ],
+      "edge_index": [
+        [
+          4,
+          8
+        ],
+        [
+          8,
+          9
+        ]
+      ]
+    }
+  }
+}

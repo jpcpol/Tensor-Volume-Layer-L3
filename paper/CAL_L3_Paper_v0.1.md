@@ -182,7 +182,7 @@ This is Step S4 of the experimental plan — run first, cheapest gate.
 | Step | Task | Method | Status | Notes |
 |------|------|--------|--------|-------|
 | **S4** | Manifold test: is dim(M_gov) << ambient? | UMAP + PCA on L2 corpus (S1–S5), n=12 | ✅ Preliminary (§6.3) | dim(M_gov)≈3, PCA tw=0.99 → Tucker; re-run on n≥30 synthetic corpus |
-| S1 | Synthetic pipeline generator | Reuse `fault_injector.py` from L2; known causal graph ground truth | Pending | CPU-only |
+| S1 | Synthetic pipeline generator | New `causal_generator.py`; 3 known causal graphs (G1–G3), 90 sessions | ✅ Done (§6.4) | Signal validated: true-edge \|r\|=0.53 vs control 0.12 |
 | S2 | C = Tucker on {T⁽ˢ⁾} stack; measure κ(V) | `tensorly` Tucker-HOOI | Pending | CPU-only |
 | S3 | Causal conservation test: does M(V) recover ground-truth causal graph? | Compare recovered vs. known causal edges | Pending | Pre-register before running |
 | S5 | O(n²) flat vs O(κ) cost contrast | `fa_dme` on AMD MI300X | **Deferred → AMD-Instinct** | Gate: C validated on S1–S4 |
@@ -237,6 +237,31 @@ S4 was run on the n=12 ground-truth quality vectors derived from the L2 φ-calib
 **Verdict (preliminary).** H_manifold is supported at n=12: dim(M_gov) ≈ 3 with PCA trustworthiness ≥ 0.99 and >90% variance retained. The conservative gate emits `TUCKER_CAUTIOUS` (because the stochastic UMAP estimate alone does not cross 0.85), but the PCA evidence points to **TUCKER**. This is preliminary — the n=12 corpus is too small for a definitive gate. The definitive S4 will be re-run on the n≥30 synthetic corpus from S1 (≥6 sessions per causal graph), where UMAP will have sufficient density to corroborate or contradict the PCA result.
 
 **Decision:** Proceed to S1 (synthetic corpus generator) with Tucker as the primary candidate for C. Re-run S4 on the synthetic corpus before committing the final operator choice.
+
+### 6.4 S1 Results: Synthetic Causal Corpus
+
+S1 produces the corpus that S2 (Tucker), S3 (causal conservation), and the definitive S4 all consume. Rather than reusing L2's `fault_injector.py` (which transforms source-code *artifacts*), S1 introduces a new generator, `causal_generator.py`, that synthesizes *quality-vector trajectories* with explicit causal edges between the 11 dimensions — because the ground truth S3 must recover is dimension-level causal structure, not artifact faults.
+
+**Model.** Each session is a trajectory V[t] ∈ [0,1]¹¹ over T_cyc=12 cycles. A parent dimension's deviation from baseline at t−lag propagates into its child at t, scaled by an edge weight (lagged linear influence — Granger/transfer-entropy recoverable, Tucker compressible). The shock dimension that seeds each cascade follows an AR(1) recovery trajectory so it carries genuine temporal variance; an early prototype kept it at a flat depressed level, which left the first edge of each chain with no signal to propagate (lagged r ≈ 0). The fix raised every first-link correlation into the detectable range. Each trajectory is lifted to a tensor T⁽ˢ⁾ ∈ ℝ^(11×4×4×12) with small stage/agent offsets (non-trivial, non-rank-1).
+
+**Ground-truth causal graphs (90 sessions, 30 per graph):**
+
+| Graph | Cascade | Mirrors L2 |
+|-------|---------|------------|
+| G1 | security_risk → testability → maintainability | S1 (security) |
+| G2 | technical_debt → maintainability → architectural_alignment | S3 (debt) |
+| G3 | observability_coverage → performance → confidence | S4 (observability) |
+
+**Generator self-test** (`validate_corpus.py`, pooled lagged Pearson r, true edges vs. 20-pair non-edge control):
+
+| Graph | mean \|r\| true edges | mean \|r\| control | separation |
+|-------|----------------------|--------------------|------------|
+| G1 | 0.565 | 0.098 | +0.467 |
+| G2 | 0.582 | 0.122 | +0.459 |
+| G3 | 0.450 | 0.130 | +0.320 |
+| **overall** | **0.532** | **0.117** | **+0.415** |
+
+The injected causal signal is cleanly recoverable; every edge sits well above control. This is a *generator* self-test, not the S3 causal test — S3 will apply a formal causal-recovery method and report F1 against `ground_truth.json` with a pre-registered threshold (target F1 ≥ 0.70). The corpus is ground-truth-labelled and ready for S2/S3 and the definitive n=90 S4 re-run.
 
 ---
 

@@ -1,0 +1,83 @@
+{
+  "G1": {
+    "edges": [
+      {
+        "src": "security_risk",
+        "dst": "testability",
+        "weight": 0.65,
+        "sign": 1
+      },
+      {
+        "src": "testability",
+        "dst": "maintainability",
+        "weight": 0.55,
+        "sign": 1
+      }
+    ],
+    "edge_index": [
+      [
+        3,
+        5
+      ],
+      [
+        5,
+        6
+      ]
+    ],
+    "shock_dim": "security_risk"
+  },
+  "G2": {
+    "edges": [
+      {
+        "src": "technical_debt",
+        "dst": "maintainability",
+        "weight": 0.6,
+        "sign": 1
+      },
+      {
+        "src": "maintainability",
+        "dst": "architectural_alignment",
+        "weight": 0.5,
+        "sign": 1
+      }
+    ],
+    "edge_index": [
+      [
+        7,
+        6
+      ],
+      [
+        6,
+        1
+      ]
+    ],
+    "shock_dim": "technical_debt"
+  },
+  "G3": {
+    "edges": [
+      {
+        "src": "observability_coverage",
+        "dst": "performance",
+        "weight": 0.58,
+        "sign": 1
+      },
+      {
+        "src": "performance",
+        "dst": "confidence",
+        "weight": 0.62,
+        "sign": 1
+      }
+    ],
+    "edge_index": [
+      [
+        4,
+        8
+      ],
+      [
+        8,
+        9
+      ]
+    ],
+    "shock_dim": "observability_coverage"
+  }
+}
