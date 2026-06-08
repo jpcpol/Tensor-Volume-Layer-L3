@@ -80,3 +80,60 @@ must be revised (e.g., transfer entropy, or PCMCI) before re-running.
   recoverable from V̂ (F1 < 0.50) → C achieves numerical fidelity while
   destroying causal structure (semantic collapse). This is the key failure mode
   §3 warns about, and it would be a publishable negative result.
+
+---
+
+# AMENDMENT 1 — S3 Run 2 (2026-06-08)
+
+Run 1 (commit 929c229) returned **inconclusive**: pairwise Granger reached
+recall=1.00 but low precision (transitive/reverse false positives), so even the
+RAW-corpus control failed the 0.70 ceiling (raw micro-F1=0.545). Per the run-1
+attribution rule, the negative was attributed to the *method*, not to C. This
+amendment fixes the method **before** S3 run 2 is executed. Run 1 code, results,
+and `NEGATIVE_RESULTS.md` are retained unchanged.
+
+## Revised method (fixed before running run 2)
+
+1. **Causal discovery: PCMCI with partial correlation (ParCorr).** PCMCI
+   (`tigramite`) is designed to separate *direct* causal links from indirect /
+   transitive ones in autocorrelated time series, by conditioning each pairwise
+   link on the parents of the target. This directly addresses the run-1 failure
+   (3→6 flagged as the transitive composition of 3→5→6).
+
+2. **Per-session time-series handling.** PCMCI is fit per graph on the stacked
+   per-session dimension trajectories (mean over stage, agent → t×11 per
+   session). To respect session boundaries we fit PCMCI **per session** and
+   aggregate links by majority vote across the 30 sessions (a link is predicted
+   if it is significant in ≥ 50% of sessions). This avoids the cross-session
+   concatenation boundary artifact of run 1.
+
+3. **Parameters (fixed):**
+   - `tau_min = 1`, `tau_max = 1` (the injected lag).
+   - ParCorr independence test, significance `pc_alpha = 0.01` (matched to run-1 α).
+   - Link predicted at lag 1 only; contemporaneous links ignored (the generator
+     injects lagged influence only).
+   - Majority-vote threshold: 0.50 of sessions.
+
+4. **Conditions, scoring, and acceptance are UNCHANGED from the original
+   pre-registration:** primary = Tucker reconstruction V̂; control = raw corpus;
+   micro-F1 across G1/G2/G3 vs the 6 ground-truth edges; PASS ≥ 0.70,
+   PARTIAL 0.50–0.70, FAIL < 0.50.
+
+## Revised attribution rule (fixed before running run 2)
+
+- The revised method must first reach **raw-corpus micro-F1 ≥ 0.70** for the
+  reconstruction test to be interpretable.
+- If raw ≥ 0.70 **and** reconstruction ≥ 0.70 → **PASS**: C preserves causality.
+- If raw ≥ 0.70 **and** reconstruction < 0.50 → **clean refutation** of
+  Property 1: C achieves high variance but destroys causal structure
+  (semantic collapse). Publishable negative.
+- If raw < 0.70 → still inconclusive; the method, not C, is the bottleneck;
+  document and stop (do not iterate methods indefinitely — report the limit).
+
+## Secondary analysis (exploratory, not gating)
+
+- **κ(V)-vs-causal-F1 trade-off:** repeat the reconstruction-condition discovery
+  across Tucker session-ranks r0 ∈ {1,2,3,5,8} (cycle-mode rank fixed) and report
+  reconstruction F1 as a function of κ(V). This characterizes how much causal
+  structure survives at each compression level. Exploratory — reported as a curve,
+  not subject to the PASS/FAIL gate.
