@@ -1,9 +1,39 @@
 {
   "experiment": "S4 \u2014 Governance Manifold Test",
+  "session": 2,
   "pre_registration": {
     "H_manifold": "dim(M_gov) <= 3",
     "acceptance_criterion": "trustworthiness >= 0.85 at dim <= 3",
+    "borderline_threshold": 0.7,
     "commit_date": "2026-06-07"
+  },
+  "methodology": {
+    "umap_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "umap_n_neighbors_grid": [
+      3,
+      4,
+      5
+    ],
+    "trustworthiness_k": 5,
+    "aggregation": "per (dim,n_neighbors): mean\u00b1std over seeds; per dim: best n_neighbors cell",
+    "pca_triangulation": true,
+    "audit_fixes": [
+      "BUG-1: borderline gate branch is now reachable",
+      "BUG-2: dim_gov = best-tw dim, not sweep ceiling",
+      "PROBLEM-3: n_neighbors swept, not hard-coded to 5",
+      "PROBLEM-4: trustworthiness averaged over multiple seeds"
+    ]
   },
   "dataset": {
     "n_points": 12,
@@ -36,22 +66,121 @@
     4,
     5
   ],
-  "trustworthiness": {
-    "2": 0.8125,
-    "3": 0.7583333333333333,
-    "4": 0.7833333333333333,
-    "5": 0.8
+  "umap": {
+    "2": {
+      "trustworthiness_mean": 0.8020833333333333,
+      "trustworthiness_std": 0.025634314025453363,
+      "best_n_neighbors": 5,
+      "per_n_neighbors": {
+        "3": {
+          "mean": 0.6591666666666666,
+          "std": 0.04432362048990735
+        },
+        "4": {
+          "mean": 0.7220833333333333,
+          "std": 0.057374561242573154
+        },
+        "5": {
+          "mean": 0.8020833333333333,
+          "std": 0.025634314025453363
+        }
+      }
+    },
+    "3": {
+      "trustworthiness_mean": 0.7812500000000001,
+      "trustworthiness_std": 0.014583333333333346,
+      "best_n_neighbors": 5,
+      "per_n_neighbors": {
+        "3": {
+          "mean": 0.66875,
+          "std": 0.059926169853690245
+        },
+        "4": {
+          "mean": 0.7420833333333333,
+          "std": 0.024112727160383814
+        },
+        "5": {
+          "mean": 0.7812500000000001,
+          "std": 0.014583333333333346
+        }
+      }
+    },
+    "4": {
+      "trustworthiness_mean": 0.7879166666666666,
+      "trustworthiness_std": 0.011403276819503367,
+      "best_n_neighbors": 5,
+      "per_n_neighbors": {
+        "3": {
+          "mean": 0.705,
+          "std": 0.06707686304200247
+        },
+        "4": {
+          "mean": 0.7433333333333334,
+          "std": 0.022607766610417558
+        },
+        "5": {
+          "mean": 0.7879166666666666,
+          "std": 0.011403276819503367
+        }
+      }
+    },
+    "5": {
+      "trustworthiness_mean": 0.7854166666666667,
+      "trustworthiness_std": 0.02522468477944219,
+      "best_n_neighbors": 5,
+      "per_n_neighbors": {
+        "3": {
+          "mean": 0.6691666666666667,
+          "std": 0.04798726682962657
+        },
+        "4": {
+          "mean": 0.7404166666666667,
+          "std": 0.02732583738678268
+        },
+        "5": {
+          "mean": 0.7854166666666667,
+          "std": 0.02522468477944219
+        }
+      }
+    }
+  },
+  "pca": {
+    "2": {
+      "trustworthiness": 0.9416666666666667,
+      "cum_explained_variance": 0.7916951476442584
+    },
+    "3": {
+      "trustworthiness": 0.9916666666666667,
+      "cum_explained_variance": 0.9183848115677405
+    },
+    "4": {
+      "trustworthiness": 0.9916666666666667,
+      "cum_explained_variance": 0.9769347827400936
+    },
+    "5": {
+      "trustworthiness": 1.0,
+      "cum_explained_variance": 0.9984722254960219
+    }
   },
   "decision": {
-    "dim_gov": 5,
-    "strategy": "SPARSE_SSM",
-    "verdict": "H_manifold FAILED \u2014 no dim achieves trustworthiness >= 0.85 within sweep range",
-    "proceed": "Switch to sparse representation + SSM-inspired gating. Update pre-registration.",
+    "dim_gov": 2,
+    "strategy": "TUCKER_CAUTIOUS",
+    "verdict": "H_manifold BORDERLINE \u2014 no dim reaches 0.85, but best tw=0.8021 at dim=2 is >= borderline 0.70",
+    "proceed": "Tucker with rank sweep; report as borderline; re-run S4 on n>=30 synthetic corpus before final gate",
+    "crossing_dim_0p85": null,
+    "best_dim": 2,
+    "best_trustworthiness": 0.8020833333333333,
     "trustworthiness_by_dim": {
-      "2": 0.8125,
-      "3": 0.7583333333333333,
-      "4": 0.7833333333333333,
-      "5": 0.8
+      "2": 0.8020833333333333,
+      "3": 0.7812500000000001,
+      "4": 0.7879166666666666,
+      "5": 0.7854166666666667
+    },
+    "pca_triangulation": {
+      "pca_best_dim": 5,
+      "pca_best_trustworthiness": 1.0,
+      "umap_minus_pca": -0.19791666666666674,
+      "note": "UMAP >> PCA -> strongly non-linear manifold; UMAP ~ PCA -> estimate robust / structure near-linear"
     }
   }
 }

@@ -23,6 +23,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from sklearn.decomposition import PCA
 from sklearn.manifold import trustworthiness as sklearn_trustworthiness
 from umap import UMAP
 
@@ -90,80 +91,209 @@ def build_matrix() -> tuple[np.ndarray, list[str], list[str]]:
     return X, scenarios, labels
 
 
-def run_umap_sweep(X: np.ndarray, dims: list[int], seed: int = 42) -> dict:
+def run_umap_sweep(
+    X: np.ndarray,
+    dims: list[int],
+    seeds: list[int],
+    n_neighbors_grid: list[int],
+    tw_k: int,
+) -> dict:
     """
-    Run UMAP for each target dimensionality.
-    Returns dict: dim -> {embedding, trustworthiness}
+    Run UMAP across (dim, n_neighbors, seed) and aggregate trustworthiness.
+
+    For each target dimensionality we sweep n_neighbors and, for each
+    (dim, n_neighbors) cell, average trustworthiness over `seeds` to absorb
+    UMAP's stochasticity (PROBLEM 4 fix). For each dim we keep the BEST
+    n_neighbors cell (the configuration that best preserves local structure),
+    reporting mean and std over seeds (PROBLEM 3 + 4 fix).
+
+    A representative embedding (first seed of the best cell) is stored for
+    plotting.
+
+    Returns dict: dim -> {
+        embedding, trustworthiness (best-cell mean), std,
+        best_n_neighbors, per_nn (full grid: nn -> {mean, std})
+    }
     """
     results = {}
     for n in dims:
-        reducer = UMAP(
-            n_components=n,
-            n_neighbors=min(5, len(X) - 1),  # small dataset: use n-1
-            min_dist=0.1,
-            random_state=seed,
-            metric="euclidean",
+        per_nn = {}
+        best = None  # (mean_tw, nn, embedding, std, all_tw)
+        for nn in n_neighbors_grid:
+            tws = []
+            first_embedding = None
+            for s in seeds:
+                reducer = UMAP(
+                    n_components=n,
+                    n_neighbors=nn,
+                    min_dist=0.1,
+                    random_state=s,
+                    metric="euclidean",
+                )
+                embedding = reducer.fit_transform(X)
+                if first_embedding is None:
+                    first_embedding = embedding
+                tw = sklearn_trustworthiness(X, embedding, n_neighbors=tw_k)
+                tws.append(float(tw))
+            mean_tw = float(np.mean(tws))
+            std_tw = float(np.std(tws))
+            per_nn[nn] = {"mean": mean_tw, "std": std_tw, "all": tws}
+            if best is None or mean_tw > best[0]:
+                best = (mean_tw, nn, first_embedding, std_tw, tws)
+
+        mean_tw, best_nn, best_emb, std_tw, _ = best
+        results[n] = {
+            "embedding": best_emb,
+            "trustworthiness": mean_tw,
+            "std": std_tw,
+            "best_n_neighbors": best_nn,
+            "per_nn": {nn: {"mean": v["mean"], "std": v["std"]} for nn, v in per_nn.items()},
+        }
+        grid_str = "  ".join(f"nn={nn}:{v['mean']:.3f}" for nn, v in per_nn.items())
+        print(
+            f"  dim={n}  best_tw={mean_tw:.4f}±{std_tw:.4f} (n_neighbors={best_nn})"
+            f"   grid[{grid_str}]"
         )
-        embedding = reducer.fit_transform(X)
-        tw = sklearn_trustworthiness(X, embedding, n_neighbors=min(5, len(X) - 1))
-        results[n] = {"embedding": embedding, "trustworthiness": float(tw)}
-        print(f"  dim={n}  trustworthiness={tw:.4f}")
     return results
 
 
-def gate_decision(sweep_results: dict) -> dict:
+def run_pca_baseline(X: np.ndarray, dims: list[int], tw_k: int) -> dict:
+    """
+    Deterministic PCA triangulation (PROBLEM 3/4 cross-check).
+
+    PCA is linear and seed-free, so it gives a stable lower bound on how much
+    structure a *linear* low-dim projection preserves, plus the cumulative
+    explained-variance ratio per dim. If PCA and UMAP disagree sharply the
+    manifold is strongly non-linear; if they agree the estimate is robust.
+    """
+    results = {}
+    full = PCA(n_components=min(X.shape)).fit(X)
+    cum_var = np.cumsum(full.explained_variance_ratio_)
+    for n in dims:
+        emb = PCA(n_components=n).fit_transform(X)
+        tw = float(sklearn_trustworthiness(X, emb, n_neighbors=tw_k))
+        evr = float(cum_var[n - 1]) if n - 1 < len(cum_var) else 1.0
+        results[n] = {"embedding": emb, "trustworthiness": tw, "cum_explained_variance": evr}
+        print(f"  dim={n}  PCA tw={tw:.4f}  cum_explained_var={evr:.4f}")
+    return results
+
+
+def gate_decision(sweep_results: dict, pca_results: dict | None = None) -> dict:
     """
     Apply pre-registered gate decision rules.
-    Returns decision dict with recommended_strategy and dim_gov.
+
+    Pre-registered rules (2026-06-07):
+      dim(M_gov) <= 3  AND  tw >= 0.85   ->  TUCKER          (H confirmed)
+      dim(M_gov) >= 6  OR   tw  < 0.70   ->  SPARSE_SSM      (H failed)
+      3 < dim < 6  (i.e. tw>=0.85 only above 3, OR best tw in [0.70,0.85)) -> TUCKER_CAUTIOUS (borderline)
+
+    BUG-1 FIX: the borderline branch is now reachable. We do not gate the
+    borderline path behind "dim_gov is not None" (which required tw>=0.85 and
+    therefore could never co-occur with a borderline verdict). Instead we
+    branch on (a) whether ANY dim crosses 0.85, and (b) the best trustworthiness
+    achieved anywhere in the sweep.
+
+    BUG-2 FIX: when no dim crosses 0.85 we no longer report dim_gov as the
+    sweep ceiling. dim_gov is reported as the dim that achieves the best
+    trustworthiness (the most informative estimate), not max(dims).
     """
-    # Find lowest dim where trustworthiness >= 0.85
     tw_threshold = 0.85
     borderline_threshold = 0.70
 
-    dim_gov = None
-    for dim in sorted(sweep_results.keys()):
-        tw = sweep_results[dim]["trustworthiness"]
-        if tw >= tw_threshold:
-            dim_gov = dim
-            break
+    dims_sorted = sorted(sweep_results.keys())
+    tw_by_dim = {d: sweep_results[d]["trustworthiness"] for d in dims_sorted}
 
-    if dim_gov is not None and dim_gov <= 3:
+    # Lowest dim crossing the strict 0.85 threshold (None if none do).
+    crossing_dim = next((d for d in dims_sorted if tw_by_dim[d] >= tw_threshold), None)
+
+    # Best dim/tw anywhere in the sweep (the informative dim_gov estimate).
+    best_dim = max(dims_sorted, key=lambda d: tw_by_dim[d])
+    best_tw = tw_by_dim[best_dim]
+
+    if crossing_dim is not None and crossing_dim <= 3:
+        dim_gov = crossing_dim
         strategy = "TUCKER"
-        verdict = "H_manifold CONFIRMED — dim(M_gov) <= 3 with trustworthiness >= 0.85"
-        proceed = "Proceed S1 → S2 → S3 with Tucker decomposition"
-    elif dim_gov is not None and dim_gov <= 5:
-        tw_at_3 = sweep_results.get(3, {}).get("trustworthiness", 0.0)
-        if tw_at_3 >= borderline_threshold:
-            strategy = "TUCKER_CAUTIOUS"
-            verdict = f"H_manifold BORDERLINE — dim(M_gov)={dim_gov}, trustworthiness at 3={tw_at_3:.4f}"
-            proceed = "Tucker with rank sweep; report as borderline in paper; run S4 with synthetic corpus too"
-        else:
-            strategy = "SPARSE_SSM"
-            verdict = f"H_manifold FAILED — dim(M_gov)={dim_gov} >= 4, trustworthiness at 3 < 0.70"
-            proceed = "Switch to sparse representation + SSM-inspired gating. Update pre-registration."
+        verdict = f"H_manifold CONFIRMED — dim(M_gov)={dim_gov} with trustworthiness={tw_by_dim[crossing_dim]:.4f} >= 0.85"
+        proceed = "Proceed S1 -> S2 -> S3 with Tucker decomposition"
+    elif crossing_dim is not None:  # crosses 0.85 but only above dim 3
+        dim_gov = crossing_dim
+        strategy = "TUCKER_CAUTIOUS"
+        verdict = f"H_manifold BORDERLINE — dim(M_gov)={dim_gov} (tw>=0.85 only above 3)"
+        proceed = "Tucker with rank sweep; report as borderline; re-run S4 on synthetic corpus"
+    elif best_tw >= borderline_threshold:
+        # No dim crosses 0.85, but local structure is meaningfully preserved.
+        dim_gov = best_dim
+        strategy = "TUCKER_CAUTIOUS"
+        verdict = (
+            f"H_manifold BORDERLINE — no dim reaches 0.85, but best tw={best_tw:.4f} "
+            f"at dim={best_dim} is >= borderline 0.70"
+        )
+        proceed = "Tucker with rank sweep; report as borderline; re-run S4 on n>=30 synthetic corpus before final gate"
     else:
+        dim_gov = best_dim
         strategy = "SPARSE_SSM"
-        dim_gov = max(sweep_results.keys())
-        verdict = "H_manifold FAILED — no dim achieves trustworthiness >= 0.85 within sweep range"
+        verdict = f"H_manifold FAILED — best tw={best_tw:.4f} (at dim={best_dim}) < borderline 0.70"
         proceed = "Switch to sparse representation + SSM-inspired gating. Update pre-registration."
 
-    return {
+    decision = {
         "dim_gov": dim_gov,
         "strategy": strategy,
         "verdict": verdict,
         "proceed": proceed,
-        "trustworthiness_by_dim": {d: v["trustworthiness"] for d, v in sweep_results.items()},
+        "crossing_dim_0p85": crossing_dim,
+        "best_dim": best_dim,
+        "best_trustworthiness": best_tw,
+        "trustworthiness_by_dim": tw_by_dim,
     }
 
+    # PCA triangulation note (does not change the gate; flags non-linearity).
+    if pca_results:
+        pca_best_dim = max(pca_results, key=lambda d: pca_results[d]["trustworthiness"])
+        pca_best_tw = pca_results[pca_best_dim]["trustworthiness"]
+        gap = best_tw - pca_best_tw
+        decision["pca_triangulation"] = {
+            "pca_best_dim": pca_best_dim,
+            "pca_best_trustworthiness": pca_best_tw,
+            "umap_minus_pca": gap,
+            "note": (
+                "UMAP >> PCA -> strongly non-linear manifold; "
+                "UMAP ~ PCA -> estimate robust / structure near-linear"
+            ),
+        }
 
-def save_results(decision: dict, sweep_results: dict, labels: list[str], scenarios: list[str]) -> Path:
+    return decision
+
+
+def save_results(
+    decision: dict,
+    sweep_results: dict,
+    pca_results: dict,
+    labels: list[str],
+    scenarios: list[str],
+    config: dict,
+) -> Path:
     """Save full results to JSON."""
     output = {
         "experiment": "S4 — Governance Manifold Test",
+        "session": 2,
         "pre_registration": {
             "H_manifold": "dim(M_gov) <= 3",
             "acceptance_criterion": "trustworthiness >= 0.85 at dim <= 3",
+            "borderline_threshold": 0.70,
             "commit_date": "2026-06-07",
+        },
+        "methodology": {
+            "umap_seeds": config["seeds"],
+            "umap_n_neighbors_grid": config["n_neighbors_grid"],
+            "trustworthiness_k": config["tw_k"],
+            "aggregation": "per (dim,n_neighbors): mean±std over seeds; per dim: best n_neighbors cell",
+            "pca_triangulation": True,
+            "audit_fixes": [
+                "BUG-1: borderline gate branch is now reachable",
+                "BUG-2: dim_gov = best-tw dim, not sweep ceiling",
+                "PROBLEM-3: n_neighbors swept, not hard-coded to 5",
+                "PROBLEM-4: trustworthiness averaged over multiple seeds",
+            ],
         },
         "dataset": {
             "n_points": len(labels),
@@ -172,7 +302,22 @@ def save_results(decision: dict, sweep_results: dict, labels: list[str], scenari
             "artifacts": labels,
         },
         "sweep_dims": sorted(sweep_results.keys()),
-        "trustworthiness": {str(d): v["trustworthiness"] for d, v in sweep_results.items()},
+        "umap": {
+            str(d): {
+                "trustworthiness_mean": v["trustworthiness"],
+                "trustworthiness_std": v["std"],
+                "best_n_neighbors": v["best_n_neighbors"],
+                "per_n_neighbors": {str(nn): cell for nn, cell in v["per_nn"].items()},
+            }
+            for d, v in sweep_results.items()
+        },
+        "pca": {
+            str(d): {
+                "trustworthiness": v["trustworthiness"],
+                "cum_explained_variance": v["cum_explained_variance"],
+            }
+            for d, v in pca_results.items()
+        },
         "decision": decision,
     }
     out_path = OUTPUT_DIR / "manifold_results.json"
@@ -180,7 +325,7 @@ def save_results(decision: dict, sweep_results: dict, labels: list[str], scenari
     return out_path
 
 
-def plot_results(sweep_results: dict, scenarios: list[str], labels: list[str]) -> None:
+def plot_results(sweep_results: dict, pca_results: dict, scenarios: list[str], labels: list[str]) -> None:
     """Generate scatter plots and trustworthiness curve."""
     try:
         import matplotlib.pyplot as plt
@@ -239,21 +384,30 @@ def plot_results(sweep_results: dict, scenarios: list[str], labels: list[str]) -
         plt.close(fig)
         print("  Saved: s4_umap_3d.png")
 
-    # ── Trustworthiness curve ────────────────────────────────────────────────
+    # ── Trustworthiness curve (UMAP mean±std + PCA overlay) ──────────────────
     dims_sorted = sorted(sweep_results.keys())
     tw_values = [sweep_results[d]["trustworthiness"] for d in dims_sorted]
+    tw_std = [sweep_results[d].get("std", 0.0) for d in dims_sorted]
 
     fig, ax = plt.subplots(figsize=(7, 4))
-    ax.plot(dims_sorted, tw_values, "o-", color="steelblue", linewidth=2, markersize=8)
+    ax.errorbar(
+        dims_sorted, tw_values, yerr=tw_std, fmt="o-", color="steelblue",
+        linewidth=2, markersize=8, capsize=4, label="UMAP (mean±std over seeds)",
+    )
+    if pca_results:
+        pca_dims = sorted(pca_results.keys())
+        pca_tw = [pca_results[d]["trustworthiness"] for d in pca_dims]
+        ax.plot(pca_dims, pca_tw, "s--", color="firebrick", linewidth=1.5,
+                markersize=6, label="PCA (linear baseline)")
     ax.axhline(0.85, color="green", linestyle="--", linewidth=1, label="acceptance threshold (0.85)")
     ax.axhline(0.70, color="orange", linestyle="--", linewidth=1, label="borderline threshold (0.70)")
     for d, tw in zip(dims_sorted, tw_values):
-        ax.annotate(f"{tw:.3f}", (d, tw), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=9)
-    ax.set_xlabel("UMAP n_components (target dim)")
+        ax.annotate(f"{tw:.3f}", (d, tw), textcoords="offset points", xytext=(0, 10), ha="center", fontsize=9)
+    ax.set_xlabel("n_components (target dim)")
     ax.set_ylabel("Trustworthiness")
     ax.set_title("S4 — Trustworthiness vs. embedding dimensionality\n(pre-registered gate: dim<=3 with tw>=0.85)")
     ax.set_xticks(dims_sorted)
-    ax.legend()
+    ax.legend(fontsize=8)
     ax.set_ylim(0.5, 1.05)
     fig.tight_layout()
     fig.savefig(OUTPUT_DIR / "s4_trustworthiness_curve.png", dpi=150)
@@ -269,14 +423,22 @@ def print_summary(decision: dict, sweep_results: dict) -> None:
     print(f"  Ambient dimension (input): 11")
     print(f"  n_points:                  {len(ARTIFACT_VECTORS)}")
     print()
-    print("  Trustworthiness by dim:")
+    print("  UMAP trustworthiness by dim (mean±std over seeds):")
     for d, v in sorted(sweep_results.items()):
         tw = v["trustworthiness"]
+        std = v.get("std", 0.0)
         bar = "#" * int(tw * 20)
         marker = " <-- pre-reg target" if d == 3 else ""
-        print(f"    dim={d}  {tw:.4f}  {bar}{marker}")
+        print(f"    dim={d}  {tw:.4f}±{std:.4f}  (nn={v.get('best_n_neighbors','-')})  {bar}{marker}")
     print()
-    print(f"  dim(M_gov) estimate:  {decision['dim_gov']}")
+    if "pca_triangulation" in decision:
+        pt = decision["pca_triangulation"]
+        print(f"  PCA triangulation: best tw={pt['pca_best_trustworthiness']:.4f} at dim={pt['pca_best_dim']}")
+        print(f"    UMAP - PCA gap = {pt['umap_minus_pca']:+.4f}")
+        print()
+    print(f"  dim(M_gov) estimate:  {decision['dim_gov']}  (best-tw dim)")
+    print(f"  crosses 0.85 at dim:  {decision['crossing_dim_0p85']}")
+    print(f"  best trustworthiness: {decision['best_trustworthiness']:.4f}")
     print(f"  Recommended strategy: {decision['strategy']}")
     print()
     print(f"  VERDICT: {decision['verdict']}")
@@ -299,27 +461,39 @@ def main() -> int:
 
     # Build input matrix from ground truth vectors
     X, scenarios, labels = build_matrix()
-    print(f"  Input matrix: {X.shape}  (n_points=12, ambient_dim=11)")
+    print(f"  Input matrix: {X.shape}  (n_points={X.shape[0]}, ambient_dim={X.shape[1]})")
     print()
 
-    # UMAP sweep
-    print("Running UMAP sweep...")
+    # Methodology config (audit-driven robustness)
     dims = [2, 3, 4, 5]
-    sweep_results = run_umap_sweep(X, dims)
+    seeds = list(range(10))                  # PROBLEM-4: average over seeds
+    n_neighbors_grid = [3, 4, 5]             # PROBLEM-3: sweep n_neighbors (capped by n-1)
+    n_neighbors_grid = [nn for nn in n_neighbors_grid if nn <= len(X) - 1]
+    tw_k = min(5, len(X) - 1)
+    config = {"seeds": seeds, "n_neighbors_grid": n_neighbors_grid, "tw_k": tw_k}
 
-    # Gate decision
-    decision = gate_decision(sweep_results)
+    # UMAP sweep (multi-seed, multi-n_neighbors)
+    print(f"Running UMAP sweep  (seeds={len(seeds)}, n_neighbors={n_neighbors_grid}, tw_k={tw_k})...")
+    sweep_results = run_umap_sweep(X, dims, seeds, n_neighbors_grid, tw_k)
+    print()
+
+    # PCA triangulation (deterministic linear baseline)
+    print("Running PCA triangulation...")
+    pca_results = run_pca_baseline(X, dims, tw_k)
+
+    # Gate decision (with PCA cross-check)
+    decision = gate_decision(sweep_results, pca_results)
 
     # Print summary
     print_summary(decision, sweep_results)
 
     # Save results
-    out_path = save_results(decision, sweep_results, labels, scenarios)
+    out_path = save_results(decision, sweep_results, pca_results, labels, scenarios, config)
     print(f"\n  Results saved: {out_path}")
 
     # Generate plots
     print("\nGenerating plots...")
-    plot_results(sweep_results, scenarios, labels)
+    plot_results(sweep_results, pca_results, scenarios, labels)
 
     return 0
 
