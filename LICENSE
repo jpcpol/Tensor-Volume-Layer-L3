@@ -1,0 +1,126 @@
+# Dual License — CAL-L3: Tensor Volume Layer
+
+CAL-L3: Tensor Volume Layer © 2026 Juan Pablo Chancay
+Part of the Cognitive Abstraction Layers (CAL) research program.
+
+---
+
+## License Structure
+
+| Scope | Files | License |
+| ----- | ----- | ------- |
+| Research & Documentation | `paper/`, `README.md`, all `.md` files outside `src/` | CC BY-NC 4.0 |
+| Source Code | `src/`, `benchmarks/`, `experiments/` | GNU AGPL-3.0 |
+
+> Creative Commons explicitly recommends against using CC licenses for
+> software. The AGPL-3.0 is used for source code to ensure Open Science
+> compliance (OSI-approved) while preventing commercial exploitation.
+
+---
+
+## Part 1 — Research & Documentation: CC BY-NC 4.0
+
+This work is licensed under the Creative Commons Attribution-NonCommercial
+4.0 International License.
+
+Full legal text: <https://creativecommons.org/licenses/by-nc/4.0/legalcode>
+
+**You are free to:**
+
+- **Share** — Copy and redistribute the material in any medium or format.
+- **Adapt** — Remix, transform, and build upon the material.
+
+**Under the following conditions:**
+
+- **Attribution** — You must give appropriate credit to Juan Pablo Chancay,
+  provide a link to this repository and to the license, and indicate if
+  changes were made. You may do so in any reasonable manner, but not in
+  any way that suggests the author endorses you or your use.
+
+- **NonCommercial** — You may not use the material for commercial purposes.
+  Commercial use requires explicit written permission from the author.
+  Contact: via GitHub repository issues.
+
+---
+
+## Part 2 — Source Code: GNU AGPL-3.0
+
+All files under `src/`, `benchmarks/`, and `experiments/` are licensed
+under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
+
+Full legal text: <https://www.gnu.org/licenses/agpl-3.0.txt>
+
+**Summary of AGPL-3.0 terms:**
+
+- You may use, study, copy, modify, and distribute the source code.
+- Any modified version you distribute must also be released under AGPL-3.0.
+- If you run this software as a network service (SaaS), you must make the
+  complete source code available to users of that service.
+- Commercial use is not prohibited by AGPL-3.0, but the copyleft and
+  network-use requirements make proprietary commercial exploitation
+  impractical without a separate commercial license from the author.
+
+For a commercial license exempting you from AGPL-3.0 obligations,
+contact the author via the GitHub repository.
+
+---
+
+## Academic Collaboration Clause
+
+This repository is part of a research program in which empirical validation
+is intended to be conducted in collaboration with academic institutions
+(universities, research labs). The following terms apply to institutional
+collaborators:
+
+**Permitted under this clause:**
+
+- Use of the framework, code, and documentation for non-commercial academic
+  research, subject to a signed **Memorandum of Understanding (MoU)** and
+  **Data-Sharing Agreement** with the principal investigator (JP Chancay).
+- Collection and analysis of experimental data using the L3 infrastructure,
+  provided the data is shared with the PI under the terms of the
+  Data-Sharing Agreement before any publication.
+- Co-authorship on resulting papers, conditional on substantive contribution
+  as defined in the MoU.
+
+**Reserved by this clause:**
+
+- **Principal Investigator (PI) status** is retained by Juan Pablo Chancay
+  for any work originating from or building directly upon this repository.
+- **First authorship** on the primary L3 paper is retained by JP Chancay.
+  Institutional co-authors appear in order of contribution as defined in
+  the MoU.
+- **IP over the composition operator C** and any CAL-L3 theoretical
+  contributions remains with JP Chancay unless explicitly transferred in
+  writing.
+
+**How to initiate collaboration:**
+
+Open an issue in this repository with the subject "Collaboration Inquiry —
+[Institution Name]" or contact via the CAL framework repository:
+<https://github.com/jpcpol/Cognitive-Abstraction-Layer-CAL>
+
+---
+
+## Intellectual Property Notice
+
+The **composition operator C**, the **Governance Manifold Hypothesis**,
+and the **Tensor Volume Layer (L3)** theoretical framework were conceived
+and formalized by Juan Pablo Chancay as part of the CAL research program.
+
+This repository serves as a timestamped public record of the original
+contribution, establishing intellectual priority prior to formal academic
+publication.
+
+- CAL pre-paper: DOI 10.5281/zenodo.20430343 (May 2026)
+- Repository: <https://github.com/jpcpol/Tensor-Volume-Layer-L3>
+
+---
+
+## Disclaimer
+
+This work is provided "as is" without warranty of any kind, express or
+implied. The author makes no representations about the suitability of this
+material for any purpose. The composition operator C and all associated
+mathematical constructs are pre-experimental research — no production use
+is implied or warranted.
