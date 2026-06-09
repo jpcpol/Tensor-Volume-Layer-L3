@@ -330,3 +330,80 @@ This sentence connects S3-bis, the TCI, README Property 1, and the Governance
 Manifold hypothesis, and is now part of how L3 is stated. (As of this round, U
 **is** validated — so the precondition the sentence names is met, and the program
 may proceed to the operator under §5.)
+
+---
+
+## 10. Consultant resolution of §5 (second round — read the full report)
+
+The consultant reviewed this full report and resolved the load-bearing open
+questions. Q1, Q2, and the next-prereg scope are now **decided**; Q4 stands as
+catalogued (L4). Recorded here as the design the next pre-registration commits to.
+
+### 10.1 Q1 — form of C_causal: **(a) Penalized Tucker** (decided)
+
+Confirmed, with the decisive argument: *we have evidence that **pure** Tucker is
+insufficient, not that Tucker is — those are different.* Tucker's computational
+behavior, κ(V), stability, and scalability are known and validated (S2); there is
+no warrant to discard it, only to correct it. (b) core-restricted-by-causal-support
+is **rejected** (overfits the linear-PCMCI regime we ourselves flagged as limited);
+(c) a new causal factorization is **premature** (too many simultaneous unknowns).
+
+### 10.2 The train/validate split + the differentiable proxy (the key unlock)
+
+Confirmed: **do not put full U inside the optimizer.** U routes
+operator → PCMCI → val_matrix → corr, which is costly, non-differentiable, and
+risks optimizing estimator noise. Instead:
+
+```
+Training objective:   E_flow = 1 − corr(Φ_T, Φ_V)     (continuous flow, no thresholds)
+Validation objective: U  (full PCMCI val_matrix correlation)   ← external check
+```
+
+The proxy is drawn from U's own machinery (the flow matrix Φ), so proxy and
+validator are aligned by construction — the standard "train on a proxy, validate
+on the real metric" discipline.
+
+> **Implementation caveat we add (makes the proxy executable, does not weaken it):**
+> in U, `Φ = val_matrix` is the PCMCI *partial* correlation conditioned on the
+> parents **PCMCI selected** — that selection is a discrete discovery step, so a
+> Φ built that way is **not** smoothly differentiable. To get a genuinely cheap,
+> differentiable `E_flow`, the proxy's Φ must use a **fixed-conditioning** partial
+> correlation (e.g. condition on all other 9 dimensions, no PC selection step). The
+> next prereg must (i) fix that conditioning a priori, and (ii) run a mini-M1: check
+> the fixed-conditioning proxy Φ still orders the Tucker family as full-U-via-PCMCI
+> does. If it does not, the proxy diverges from the validated metric and must be
+> revised before training on it (this is exactly the S3-bis-trap guard, applied to
+> the proxy rather than the operator).
+
+### 10.3 Q2 — Π_gov: **lexicographic tie-break, not a constraint** (decided)
+
+Π_gov is NOT a hard constraint (a hard `tw ≥ 0.95` would re-reward the geometric
+preservation S3-bis showed is insufficient). It is a **lexicographic objective**:
+
+```
+Level 1:  max U            (causal preservation — primary)
+Level 2:  max tw           among solutions already causally equivalent (tie-break)
+```
+
+This implements **Causality ≻ Topology ≻ Reconstruction** operationally without
+re-entering the S3-bis trap. Closes Q2.
+
+### 10.4 The deeper scientific claim the report under-emphasized
+
+The consultant's strongest point: **the TCI does not only validate U — it
+establishes that causality can be detected without the ground-truth causal
+graph.** That was not demonstrated before; now there is evidence it can. This is a
+standalone, publishable claim (independent of any operator), and is the reason the
+line is worth a paper. It should be foregrounded, not buried under "U passed."
+
+### 10.5 Next pre-registration scope (decided)
+
+NOT yet "new L3 operator." Scoped to answer Q1 only, reusing S3-bis + TCI:
+
+> **"Causal-Aware Tucker: evaluation of differentiable causal-flow proxies as a
+> training objective, with external validation via U."**
+
+This answers Q1 without committing the full `C = Π_gov ∘ C_causal ∘ C_compress`
+architecture, and reuses everything already validated. Q3 (composition order) and
+Q4 (non-linearity / cross-scale, L4) remain for later, separately pre-registered
+steps.
