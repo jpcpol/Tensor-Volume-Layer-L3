@@ -262,3 +262,71 @@ against full U-via-PCMCI post-hoc. We want the consultant to either confirm that
 the train-surrogate / validate-with-U split is methodologically sound, or tell us
 it reintroduces the S3-bis trap (optimizing a proxy that diverges from the thing
 we actually validated). Everything else in §5 can follow that decision.
+
+---
+
+## 9. Reconciliation with the consultant's TCI response (state sync)
+
+The consultant reviewed an **earlier** state (the seeded plan, before the
+pre-run audit) and proposed a TCI design. This section maps each point onto what
+was **actually executed**, so the next round starts from the current state, not
+the prior one. Net: the consultant's framing is right; two of his specifics were
+already superseded by stricter executed versions, and two of his signals are
+genuinely useful.
+
+### 9.1 Confirmed — already executed, stronger than proposed
+
+- **TCI-1 (causal monotonicity** `F(Tᵢ)>F(Tⱼ) ⇒ U(Tᵢ)>U(Tⱼ)`**)** is exactly our
+  gate **M1**, run over the full family {1,2,3,5,8} (not just A>B>C): Spearman
+  ρ = 1.0. The consultant's "naturally calibrated benchmark" (A=1.000, B=0.245,
+  C=0.135) is the κ–F1 scale we used — and we used **all five** points, so the
+  intermediate-rank ordering (which a compression detector could fake on three
+  points) is also pinned. ✅ Done.
+- **TCI-2 (minimum separation** `U(T) − U(T_κl) > ε`**)** is **weaker** than what
+  we ran. Our **C2** does not merely require a gap on two points; it destroys
+  causality at **fixed marginals** (per-dim temporal shuffle) and shows U collapses
+  1.0 → 0.068. That proves the separation is caused by *causality, not
+  compression* — which a two-point ε threshold cannot establish. C2 ⊃ TCI-2. ✅ Done.
+- **"The TCI is the real scientific gate of L3"** — agreed and already acted on.
+  The TCI was run **before** any new operator, exactly as a gate.
+
+### 9.2 Superseded — do NOT adopt
+
+- **U₁ = `|E_T ∩ E_V| / |E_T|` (PCMCI edge preservation)** is **the metric we
+  audited and rejected a priori.** It is a *recall*: it returns **1.0** for Tucker
+  while supervised F1 = 0.135, because it is blind to false positives — and Tucker's
+  failure mode is *fabricating* spurious edges (G1: 2 true edges vs 28 in the
+  reconstruction → 26 spurious), not losing true ones. Running the TCI with U₁
+  would have produced a **false PASS on M1**. This is not a matter of preference;
+  it is a verified property of the metric on this corpus. We replaced it with the
+  **Pearson correlation of off-diagonal `val_matrix` flow** (continuous flow, which
+  penalizes Tucker's redistribution). The consultant's recommendation predates the
+  audit that ruled U₁ out.
+
+### 9.3 Useful new signals — adopted / catalogued
+
+- **U₂ = Causal Manifold Stability** (PCMCI structure on T vs V, measuring causal
+  *neighborhood geometry*, aligned with the Governance Manifold). The consultant is
+  right that **M_gov is the real scientific object, not Tucker.** This matches our
+  catalogued "cross-scale" candidate — flagged as the **L4 destination, not the
+  starting point**, because it drags the still-open assumption that G_L2 and G_L3
+  are comparable. It is **Q4** in §5. It confirms the destination; it does not
+  change the immediate next step (within-scale U first).
+- **Reordering TCI → S4 → operators** (instead of S4 → operator → TCI). **Adopted
+  as a dependency principle.** His argument is sound — if U were invalid, S4 would
+  lose value and every operator comparison would be in question. De facto we
+  *already* satisfy this (the TCI ran first); we are now formalizing it: a validated
+  U is a **precondition** for S4's interpretability and for any operator comparison.
+
+### 9.4 Framing sentence (adopted verbatim into the L3 program statement)
+
+> The immediate objective of L3 is not to find a composition operator C, but to
+> establish an unsupervised metric U capable of discriminating between known
+> levels of causal fidelity. Without a validated U, Property 1 (Causal
+> Preservation) of operator C is not evaluable outside synthetic corpora with
+> ground truth.
+
+This sentence connects S3-bis, the TCI, README Property 1, and the Governance
+Manifold hypothesis, and is now part of how L3 is stated. (As of this round, U
+**is** validated — so the precondition the sentence names is met, and the program
+may proceed to the operator under §5.)
