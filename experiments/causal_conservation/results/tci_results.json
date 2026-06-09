@@ -1,0 +1,54 @@
+{
+  "experiment": "TCI \u2014 Instrument Calibration Test",
+  "pre_registration": "PRE_REGISTRATION_TCI.md (commit 1766b86)",
+  "U_definition": "Pearson corr of off-diagonal median PCMCI val_matrix (lag-1)",
+  "fixed_params": {
+    "tau": 1,
+    "pc_alpha": 0.01,
+    "tucker_ambient": [
+      3,
+      3,
+      3,
+      6
+    ],
+    "shuffle_seed": 20260609,
+    "m1_gate": 1.0,
+    "c2_floor": 0.5
+  },
+  "M1": {
+    "ranks": [
+      1,
+      2,
+      3,
+      5,
+      8
+    ],
+    "f1_by_rank": {
+      "1": 0.0898876404494382,
+      "2": 0.1038961038961039,
+      "3": 0.1348314606741573,
+      "5": 0.17391304347826084,
+      "8": 0.24489795918367346
+    },
+    "u_by_rank": {
+      "1": 0.19521449212644115,
+      "2": 0.23990256411383296,
+      "3": 0.35745888355448896,
+      "5": 0.39157994995384654,
+      "8": 0.4414828270367426
+    },
+    "spearman_rho": 0.9999999999999999,
+    "pass": true
+  },
+  "C2": {
+    "u_raw_raw": 0.9999999999999999,
+    "u_raw_shuffle": 0.06844139861126963,
+    "pass": true
+  },
+  "verdict": {
+    "m1_pass": true,
+    "c2_pass": true,
+    "validated": true,
+    "text": "U is a VALIDATED instrument. Proceed to design C_causal / Pi_gov with U in the objective (separate pre-registration)."
+  }
+}
