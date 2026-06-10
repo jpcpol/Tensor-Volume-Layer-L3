@@ -55,6 +55,8 @@ C = C_causal ∘ C_compress
 
 Full narrative + formal definition + provenance: [`L3_CLOSURE.md`](L3_CLOSURE.md).
 
+**Downstream — the residual frontier, now characterized (L4-B0, 2026-06).** Form 1's prune leaves a residual `ΔU≈0.138` (the gap from U=0.862 to 1.0), declared by L3 as a frontier (flow magnitude / higher-order structure). L4 characterized it: only ~19% is linear-edge-representable (magnitude + sign); **~81% is non-linearity** a single *linear* volume cannot carry (lag>1 ≈0%). The frontier is therefore **non-linear**, not a tuning gap — which is why L4 keeps the dual `(V_Tucker, G_pruned)` as terminal and does not pursue a single linear V′ (L4 §5.5). L3's "structural sparsity preservation" thesis is unaffected; the residual it declared is now explained.
+
 ### Governance Manifold Hypothesis (§5.6) — confirmed, but demoted to descriptor
 
 dim(M_gov)≈2–3 is confirmed. However L3 found this manifold is *static* (reconstructible with the time axis averaged out) while causality is *temporal* — so M_gov is retained as a **descriptor**, not as a projection driver (`Π_gov` suspended). Whether a low-dimensional *causal* manifold exists is an open L4 question (Q_L3.2).
@@ -72,7 +74,7 @@ Every step committed its pre-registration *before* code; negatives reported hone
 | S2 | C = Tucker over {T⁽ˢ⁾}; κ(V) | ✅ κ=1296, 195.6×, tractable |
 | S3 / S3-bis | Does the reconstruction recover the causal graph? | ❌ Property 1 refuted (clean) → reframing |
 | TCI · proxy audit · operator search · Ω · Q_L3.2A · Form 1 | Characterize causal conservation | ✅ Closed — sparsity-preservation thesis confirmed |
-| S5 | O(n²) flat vs O(κ) cost contrast on MI300X | → handed to L4-A / AMD (gate-C closed) |
+| S5 | O(n²) flat vs O(κ) cost contrast on MI300X | ✅ Run & frozen on MI300X (D(n)→52.8× @4k, mechanism confirmed) — via L4-A / AMD |
 
 ---
 
