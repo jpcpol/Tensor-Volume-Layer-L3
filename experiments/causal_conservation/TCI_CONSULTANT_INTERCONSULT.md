@@ -503,3 +503,67 @@ bind when there are O(10) operator configurations, not O(10⁶) gradient steps.
 > the causal information relevant to governance is contained chiefly in the
 > structure of relations and not in the continuous magnitudes associated with
 > them.
+
+---
+
+## 12. Operator search executed — U is a usable objective (G1 PASS, with caveat)
+
+Pre-registered `PRE_REGISTRATION_OPERATOR_SEARCH.md` (commit 5bb1b2d), run
+`run_operator_search.py`, results `results/operator_search_results.json`.
+Exhaustive 45-config Tucker grid maximizing the validated U directly (no proxy).
+
+### 12.1 Result
+
+```
+C* = argmax U  =  (r0=8, r_dim=3, r_stage=3, r_agent=3, r_cycle=6)   U* = 0.4415
+G1 (anti-overfit):  F1(C*)=0.245  ≥  F1(C_base)=0.245   PASS
+G2 (reported):      Spearman(U, F1) over calibration line = 1.000   positive
+```
+
+**Honest caveat on G1.** The argmax-U config **coincides with the TCI calibration
+baseline** `(8,3,3,3,6)`, so C* = C_base and G1 passes *trivially* (0.245 = 0.245).
+G1 was therefore not a strong test this run — there was no displacement away from
+the baseline to stress-test. The real evidence that U does not overfit is
+structural, below.
+
+### 12.2 The structural evidence (stronger than the trivial G1)
+
+The full grid shows U and the **known** governance structure coincide
+*geographically* in rank space — U never rewards a causally-degenerate config:
+
+- **Top-8 U configs all lie at r_dim ≥ 3** — at or above the S4 governance-manifold
+  dimension (≈2–3). U's preferred region is exactly the region S4 marked as where
+  causal/governance structure lives.
+- **r_dim = 2 (below the manifold dim) is confined to U ≤ 0.217** — compressing the
+  dimension mode *below* the causal manifold is consistently penalized by U. A
+  metric that overfit (rewarded compression per se) could have placed a high-U
+  config here; none did.
+- Along the calibration line (r_dim=3, r_cycle=6) U rises monotonically with r0
+  (0.195→0.240→0.358→0.392→0.442), tracking the S3-bis F1 order (G2 ρ=1.0).
+
+So U does not just *rank* the calibration family (TCI) — across an **independent**
+grid it concentrates its optimum in the governance-manifold region and refuses to
+reward sub-manifold compression. That is the anti-overfit signal, independent of
+the trivial G1.
+
+### 12.3 What this does and does NOT establish
+
+- **Does:** U is usable as a **direct optimization objective**, not only as a
+  referee. Maximizing it over an independent rank grid lands in the causally-correct
+  region and never in a degenerate one. The derivative-free search loop works.
+- **Does NOT:** prove U is *exploit-proof* under a *richer* operator family. Within
+  plain Tucker, the U-optimum simply confirms the calibration baseline — Tucker has
+  no "cheat" config to find. The genuine overfit stress-test arrives when the
+  operator family is enlarged (structured cores, Π_gov), where U *could* be gamed.
+  G1 must be re-run there with a non-trivial baseline. Flag carried forward.
+
+### 12.4 Decision and next step
+
+U is confirmed as the L3 objective. The plain-Tucker search has no operator beyond
+the calibration optimum to offer (expected: S3-bis already showed Tucker's ceiling
+is low — U*≈0.44 vs raw 1.0, the 0.56 headroom is **not reachable inside Tucker**).
+This makes the next prereg's necessity concrete: **to close the headroom, the
+operator family must change** — and that is exactly where Π_gov (lexicographic
+topological tie-break, §10.3) and a structure-preserving C_causal enter. The U
+objective and the derivative-free search loop are now validated infrastructure for
+that step; G1 must use a non-trivial baseline once the family is enlarged.
