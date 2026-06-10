@@ -407,3 +407,99 @@ This answers Q1 without committing the full `C = Π_gov ∘ C_causal ∘ C_compr
 architecture, and reuses everything already validated. Q3 (composition order) and
 Q4 (non-linearity / cross-scale, L4) remain for later, separately pre-registered
 steps.
+
+---
+
+## 11. Pre-prereg audit: the differentiable proxy is REFUTED (third round)
+
+Before writing the §10.5 prereg, we **audited** the load-bearing assumption — that
+a cheap differentiable proxy `E_flow` could order the Tucker family as the
+validated U does. The audit (`audit_proxy.py`, record `results/audit_proxy_results.json`)
+ran three differentiable Φ candidates against the S3-bis F1 scale. **It refuted
+the assumption** — and the consultant, shown the result, agreed and reframed it as
+a finding, not a defect.
+
+### 11.1 What the audit found
+
+| Flow matrix Φ | Differentiable? | Cost/session | ρ(·, F1) |
+|---|---|---|---|
+| U-via-PCMCI (validated metric) | **No** (discrete PC parent-selection step) | ~190–540 ms | **+1.00** |
+| Full-conditioning partial corr (precision matrix) | Yes | ~2.5 ms (≈80× faster) | **−0.30** |
+| Bivariate lag-1 cross-corr | Yes | cheap | **+0.60** |
+| Ridge VAR(1) coefficients | Yes | cheap | **+0.60** |
+
+Every differentiable candidate fails the mini-M1 ordering gate (ρ=1.0). The two
+best (bivariate, ridge) invert at **rank 5 < rank 3** while F1 rises monotonically.
+The C2-style shuffle sanity passes for all (proxy collapses to ~0.02 under
+shuffle) — so the proxies *do* respond to temporal causality, they just don't
+**rank fidelity** correctly. Cost is not the problem; **ordering** is.
+
+### 11.2 The finding (consultant, adopted)
+
+The diagnosis: **U's ordering power depends on PCMCI's discrete structural
+selection step (PC)** — which is exactly what makes U non-differentiable. Removing
+it to gain a gradient destroys the very property we want to preserve. This is the
+**second instance of the S3-bis pattern**:
+
+```
+S3-bis  :  Reconstruction        ≠  Causality
+this audit: Differentiable proxy ≠  Causal ordering
+```
+
+Chasing a "more convenient" continuous metric that then becomes the objective is
+the Tucker mistake again. We do NOT repeat it.
+
+> **Deeper claim (consultant, to be tested):** the failure of coefficient-based
+> proxies is **not a negative result for CAL** — it is evidence that the causal
+> information relevant to governance lives in the **structure** of relations, not
+> in the **continuous magnitudes** attached to them. It explains why Tucker
+> preserves reconstruction and local topology yet destroys causality, and why
+> parent-selection works where coefficient magnitudes fail. The fundamental causal
+> question is `X → Y?` (discrete), not "what is the coefficient value?"
+> (continuous). If this holds in further experiments, Property 1 will end up
+> defined by **discrete causal-structure preservation** (graph similarity), not by
+> a continuous energy — and L3 stops being "compression-operator design" and
+> starts **characterizing which part of a representation carries causal
+> governability.**
+
+### 11.3 Design decision (revised — supersedes §10.2 and §10.5)
+
+**Drop the differentiability requirement.** There is no evidence it is necessary
+(it came from a deep-learning reflex, not from CAL/TCO/L3), and there is now
+evidence that trying to satisfy it degrades the target property. L3 is an
+**operator-search** problem, not a differentiable-optimization one:
+
+```
+REVISED objective:   max  U(C(T))        ← directly, the validated metric
+REVISED search:      black-box / derivative-free over the operator's few
+                     parameters (Tucker ranks): Bayesian optimization, CMA-ES,
+                     differential evolution, or exhaustive small-grid.
+```
+
+This is standard and accepted (AutoML, NAS, hyperparameter search all optimize
+non-differentiable external metrics). U stays the **primary objective**, not a
+proxy. Π_gov remains the lexicographic tie-break of §10.3.
+
+### 11.4 Revised next-prereg scope (supersedes §10.5)
+
+> **"Causal-Aware operator search: maximize the validated metric U(C(T)) directly
+> via derivative-free search over Tucker ranks, with Π_gov as lexicographic
+> topological tie-break."**
+
+No proxy. The expensive-but-correct U is affordable because the search space (a
+few Tucker ranks) is tiny — the cost concern that motivated the proxy does not
+bind when there are O(10) operator configurations, not O(10⁶) gradient steps.
+
+### 11.5 Research-notebook entry (consultant, verbatim)
+
+> Audit result: U's ability to order causal fidelity appears to depend on PCMCI's
+> discrete structural-selection step (PC). Three continuous proxies fail to fully
+> reproduce that ordering. Absent contrary evidence, the program temporarily
+> abandons the hypothesis that a simple differentiable proxy for U exists and
+> adopts U as the primary evaluation objective for future causal-composition
+> operators.
+>
+> The failure of the proxies is not a negative result for CAL. It is evidence that
+> the causal information relevant to governance is contained chiefly in the
+> structure of relations and not in the continuous magnitudes associated with
+> them.
