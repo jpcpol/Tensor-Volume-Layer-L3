@@ -96,3 +96,73 @@ step is a corpus pre-registration, and Q_L3.2 waits. This determines the next mo
 2. `CONSULTANT_BRIEF_CCAUSAL.md` §9 — the Q_L3.2-first ruling and the Ω hypothesis.
 3. `results/tci_results.json`, `results/operator_search_results.json` — U + Tucker ceiling.
 4. `../synthetic_corpus/corpus_s1bis/ground_truth.json` — the actual injected causal edges.
+
+---
+
+## 9. Consultant resolution — Ω as observational invariants, two layers; Q_L3.2A runs now
+
+The decisive reframing: **Ω must not be defined from the semantic categories**
+("drift", "conflict") as narrative concepts, but as **observational invariants over
+causal structures**. Defining Ω semantically would inject theory into the
+instrument — exactly what Q_L3.2 exists to avoid. The right question is not "what is
+drift?" but "what observable property of a causal structure makes a human perceive
+it as drift?"
+
+### 9.1 Two layers — Q_L3.2 operates on Ω₀, never on Ω₁
+
+- **Ω₀ (observational primitives)** — measurable directly from PCMCI.
+- **Ω₁ (cognitive categories)** — drift, conflict, propagation, omission, structural
+  violation. These are **derived** from Ω₀, never defined directly.
+
+### 9.2 Ω₀ = (P, D, R, C, S), the five invariants
+
+Given a PCMCI causal graph `G=(V,E,W)`:
+
+| Sym | Name | Definition | Ref | Derives (Ω₁) |
+|-----|------|-----------|-----|--------------|
+| **P** | Persistence | `(1/(T-1)) Σ_t Jaccard(E_t, E_{t+1})` over time windows | self | drift = f(low P) |
+| **D** | Divergence | `1 − Jaccard(E_{a1}, E_{a2})` (or spectral dist) between per-agent graphs | self | conflict = f(high D) |
+| **R** | Reachability | `#connected_pairs / n(n-1)` (or mean path length) from adjacency A | self | propagation = f(high R) |
+| **C** | Coverage | `|E ∩ E_ref| / |E_ref|`, E_ref = GT (train) or raw (deploy) | GT/raw | omission = 1−C |
+| **S** | Consistency | `1 − (#violations / #E)`; violations = sign flip / direction inversion / impossible cycles / forbidden links | GT/raw | struct. violation = 1−S |
+
+Ω₁ appears automatically as functions of Ω₀ — not defined, derived. This separation
+prevents contaminating the study.
+
+### 9.3 d_Ω is VECTORIAL, not a scalar (yet)
+
+```
+Ω   = (P, D, R, C, S)
+d_Ω = (|P₁−P₂|, |D₁−D₂|, |R₁−R₂|, |C₁−C₂|, |S₁−S₂|)
+```
+
+No collapse to `αP + βD + …` — we do not yet know which component matters most for
+governance, and arbitrary weights are exactly what the program has avoided.
+
+### 9.4 §5 ruling — S1-bis suffices for Ω₀, NOT for Ω₁ (split the study)
+
+- **Q_L3.2A (runs NOW on S1-bis):** characterize the invariants the corpus can
+  answer. S1-bis carries causal structures, paths, edge recovery, structural errors.
+- **Q_L3.2B (needs an S-Ω corpus):** drift and conflict are **under-represented**
+  (those mechanisms were never injected), so claims about them need a corpus
+  designed to induce temporal drift + inter-agent conflict.
+
+The question shifts from "does Tucker preserve drift?" to "**which causal invariants
+survive Tucker?**" — answerable on the current corpus without new assumptions.
+
+### 9.5 Our computability audit refines the A/B boundary (one nuance added)
+
+We audited each invariant against the real substrate before pre-registering:
+
+- **R, C, S — directly computable on S1-bis, high power.** val_matrix carries sign
+  (S detectable), GT and raw refs both exist (C), edge set gives adjacency (R).
+- **D — computable BUT** requires **per-agent series** `T[:,:,a,:].mean(stage)` (a
+  pipeline change from `to_dim_series`, which collapses the agent axis), AND its
+  *signal* (real inter-agent conflict) was not injected → low content on S1-bis.
+- **P — low power on S1-bis** (12-point windows are thin for PCMCI).
+
+**Decision (yours):** Q_L3.2A pre-registers **R, C, S only** — the high-power,
+directly-computable core. **D and P are explicitly deferred to Q_L3.2B** (S-Ω
+corpus). This keeps Q_L3.2A clean: it measures exactly what the corpus can answer,
+no low-signal components in the confirmatory set. Pre-registration:
+`PRE_REGISTRATION_QL32A.md`.
