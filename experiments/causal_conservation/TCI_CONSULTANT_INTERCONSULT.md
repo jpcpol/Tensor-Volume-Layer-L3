@@ -567,3 +567,76 @@ operator family must change** — and that is exactly where Π_gov (lexicographi
 topological tie-break, §10.3) and a structure-preserving C_causal enter. The U
 objective and the derivative-free search loop are now validated infrastructure for
 that step; G1 must use a non-trivial baseline once the family is enlarged.
+
+---
+
+## 13. Q_L3.2A executed — Tucker's failure DECOMPOSED: it fabricates, not loses
+
+Pre-registered `PRE_REGISTRATION_QL32A.md` (commit f61472f), run `run_ql32a.py`,
+results `results/ql32a_results.json`. Characterizes which observational causal
+invariants (R, C, S) survive Tucker. This is the **most design-relevant result
+since S3-bis** — it tells C_causal exactly what to target.
+
+### 13.1 Result (mean over G1/G2/G3)
+
+| cond | R (reach) | C_raw (coverage) | S_raw (consistency) | \|E\| | U | F1 |
+|------|----------:|-----------------:|--------------------:|------:|------:|------:|
+| raw  | 0.027 | 1.000 | 1.000 | **2.0** | 1.000 | 1.000 |
+| r1   | 0.315 | 0.667 | 1.000 | 27.7 | 0.195 | 0.090 |
+| r2   | 0.315 | 0.667 | 1.000 | 23.7 | 0.240 | 0.104 |
+| r3   | 0.506 | 1.000 | 1.000 | 27.7 | 0.357 | 0.135 |
+| r5   | 0.445 | 1.000 | 1.000 | 21.0 | 0.392 | 0.174 |
+| r8   | 0.233 | 1.000 | 1.000 | 14.3 | 0.442 | 0.245 |
+
+### 13.2 The decomposition — this is the headline
+
+The pre-registered "most valuable outcome" (some invariants survive, others
+collapse) **occurred**, and it pinpoints Tucker's failure mode:
+
+- **S (consistency) = 1.000 everywhere.** Tucker **never flips a sign**. The edges
+  it produces have the correct causal direction/sign. An entire failure class —
+  causal corruption — is ruled out.
+- **C (coverage) is high (0.667–1.000).** Tucker **recovers the true edges** (r3/r5/r8
+  cover 100%). This is **not an omission problem**; recall is fine.
+- **R (reachability) and |E| EXPLODE.** Raw has **2 edges** (the true 2-edge chain,
+  R=0.027). Tucker fabricates **14–28 edges** (R up to 0.51, a 10–20× inflation),
+  wiring spurious paths across the graph.
+
+**Conclusion: Tucker does not lose or corrupt causality — it OVER-GENERATES it.**
+The failure is spurious-edge *fabrication*, not loss and not sign error.
+
+### 13.3 What this hands C_causal (precise, actionable)
+
+The object to preserve is **not "recover edges"** (Tucker already does, C high, S
+perfect) — it is **suppress spurious connectivity**: keep R low, preserve the true
+causal sparsity (raw |E|=2). **C_causal must be a causal pruning / sparsification
+operator, not a recovery one.** This:
+
+- **empirically confirms** the proxy-audit hint (Tucker fabricates edges: G1 had 2
+  true vs 28 reconstructed) and the consultant's "causality lives in structure";
+- **strongly motivates Form 1** (the structural mask): a mask pruning Tucker's V̂ to
+  the raw causal support attacks exactly this failure mode. The cheap Form-1
+  falsifier is now well-justified as the immediate next experiment.
+
+### 13.4 Honest nuances (pre-registered reporting)
+
+- **R is NOT monotone in rank** (Spearman vs rank = −0.154): it rises to r3 then
+  falls to r8. r8 (best U) fabricates *fewer* spurious edges (|E|=14 vs 28), so U
+  and spurious-edge suppression correlate **partially** — U already partly rewards
+  pruning, which is why the best Tucker is the sparsest. This aligns U with the
+  C_causal target rather than against it.
+- **C and S are GT/raw-identical here** (raw recovers exactly the true edges, so
+  C_raw=C_GT, S_raw=S_GT). The deployment surrogate (raw-ref) equals the training
+  reference (GT) on this corpus — a convenience that may not hold on richer corpora.
+- **Scope honored:** D and P were NOT measured (deferred to Q_L3.2B / S-Ω corpus).
+  No Ω₁ (drift/conflict) claim is made; only the Ω₀ invariants R, C, S are reported.
+
+### 13.5 Where this leaves the program
+
+The characterization phase is complete for the invariants S1-bis can answer.
+C_causal's job is now **specified, not guessed**: prune spurious causal edges
+(lower R toward raw) while keeping C and S (which Tucker already preserves). Next:
+the Form-1 structural-mask falsifier — if a simple raw-support prune lifts U
+materially above 0.442, the structural thesis is confirmed and a richer pruning
+operator is justified. (Q_L3.2B — D/P on an S-Ω corpus — remains a separate later
+step.)
