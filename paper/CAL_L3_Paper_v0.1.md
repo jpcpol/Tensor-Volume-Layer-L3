@@ -8,6 +8,7 @@ jpcpol@gmail.com
 **Version:** 0.2 — Draft / Working Paper (characterization phase closed)  
 **Date:** June 2026  
 **Status:** Characterization closed (~95%). Operator C characterized: causal conservation = preservation of Ω₀ = (R, C, S) under compression, *not* reconstruction fidelity. All hypotheses pre-registered before data; see §6.9 and `L3_CLOSURE.md`.  
+**DOI:** [10.5281/zenodo.20628133](https://doi.org/10.5281/zenodo.20628133)  
 **Part of:** CAL architecture — [CAL pre-paper DOI 10.5281/zenodo.20430343](https://doi.org/10.5281/zenodo.20430343)  
 **Repository:** [github.com/jpcpol/Tensor-Volume-Layer-L3](https://github.com/jpcpol/Tensor-Volume-Layer-L3)  
 **License:** CC BY-NC 4.0 (this document) · AGPL-3.0 (src/)  
