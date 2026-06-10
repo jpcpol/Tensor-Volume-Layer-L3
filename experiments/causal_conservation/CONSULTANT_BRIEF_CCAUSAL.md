@@ -150,3 +150,78 @@ worth the larger investment.
 4. `results/audit_proxy_results.json` — why magnitude proxies fail (causality is structural).
 5. `CONSULTANT_BRIEF_PIGOV.md` §9 — Π_gov suspension (why C_causal is the only new piece).
 6. `TCI_CONSULTANT_INTERCONSULT.md` §11–§12 — proxy refutation + operator search.
+
+---
+
+## 9. Consultant resolution — Q_L3.2 first, Form 1 as a cheap falsifier; no operator yet
+
+The consultant declined to pre-register ANY of Forms 1–3 as the definitive
+C_causal. Not generic caution — the data already carry strong evidence about the
+*nature* of the problem.
+
+### 9.1 Verdict
+
+| Form | Ruling |
+|------|--------|
+| Form 1 (structural mask) | **Yes — as a falsifying experiment**, not as C_causal |
+| Form 2 (residual corrector) | **No for now** — assumes a causal geometry we don't yet know |
+| Form 3 (structure-first) | **No yet** — same reason |
+| Form 4 (characterize Q_L3.2) | **Yes — the main next step** |
+
+**Sequence: Q_L3.2 first, then Form 1 as a cheap falsification test. Not the reverse.**
+
+### 9.2 The core reframing — the problem is now ontological, not algorithmic
+
+We know *how* to optimize (U works; search finds the same ceiling). We have **not**
+defined the causal *object* C_causal must preserve. That is a question about *what*,
+before *how*.
+
+Why Form 1 must NOT yet become C_causal: a mask answers *"which edges to keep?"* but
+not *"which causal structure am I representing?"* — different questions. Extreme
+example: operator A keeps the exact original edges; operator B loses some individual
+edges but preserves inter-agent **conflict**, temporal **drift**, causal
+**propagation** — the elements of Ω. If CAL's theory is right, **B may be better for
+governance than A**, and a mask fixed to the original graph could never discover
+that.
+
+The analogy (and it lands, given S4):
+```
+S4 taught:   Trustworthiness   ≠  governance
+Now nearing: PCMCI-flow        ≠  governance-relevant causality
+```
+**U is the window on the object, not the object itself.**
+
+### 9.3 The strong hypothesis the consultant introduces
+
+C should not preserve the full causal graph `G=(V,E)` but **Ω, the causal
+ontology**: `Ω = {drift, conflict, propagation, omission, structural violation}`.
+The true target is plausibly `C = f(G)` with `C ∈ Ω` — preserve causal *patterns*,
+not edges. Tucker destroys G; **whether it also destroys Ω is unknown** — and that
+is exactly what Q_L3.2 must characterize.
+
+### 9.4 The prescribed Q_L3.2 study (3 levels per Tucker rank)
+
+For {raw, Tucker-rank1, …, Tucker-rankN} measure:
+- **Level 1:** U (already exists).
+- **Level 2:** Ω-patterns recovered (drift, conflict, propagation, omission).
+- **Level 3:** distance between causal ontologies `d_Ω`.
+
+Either surprising outcome redefines C_causal's design: *(a)* U drops a lot but Ω is
+largely preserved, or *(b)* U drops little but Ω collapses. Both are informative.
+
+### 9.5 Why Form 1 as the immediate falsifier
+
+Form 1 has one valuable property: **if even a simple structural mask pushes U
+materially above 0.44, that is direct evidence Tucker's loss is structural, not
+geometric** — which alone would justify investing later in a richer causal-operator
+family.
+
+### 9.6 OPEN — Ω needs a formal operational definition before Q_L3.2 (4th consult)
+
+The consultant named Ω but did not give the operational metric for each pattern
+(drift, conflict, propagation, omission, structural violation) nor `d_Ω`. The
+S1-bis corpus was generated with simple lag-1 causal edges, **not** with explicit Ω
+patterns — so we cannot operationalize Ω without inventing definitions that would
+bias Q_L3.2 from the design. Decision: **return to the consultant for Ω's formal
+definition** (a short, focused 4th consult) before pre-registering Q_L3.2. Brief:
+`CONSULTANT_BRIEF_OMEGA.md`.
