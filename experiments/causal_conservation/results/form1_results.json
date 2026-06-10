@@ -1,0 +1,59 @@
+{
+  "experiment": "Form 1 \u2014 Structural-Mask Falsifier",
+  "pre_registration": "PRE_REGISTRATION_FORM1.md (commit b2c843a)",
+  "baseline_tucker": [
+    8,
+    3,
+    3,
+    3,
+    6
+  ],
+  "measurements": {
+    "raw_ref": {
+      "U": 0.9999999999999999,
+      "R": 0.02727272727272727,
+      "C_raw": 1.0,
+      "S_raw": 1.0,
+      "E": 2.0
+    },
+    "tucker_r8": {
+      "U": 0.4414828270367426,
+      "R": 0.2333333333333333,
+      "C_raw": 1.0,
+      "S_raw": 1.0,
+      "E": 14.333333333333334
+    },
+    "masked_raw": {
+      "U": 0.8622602245625725,
+      "R": 0.02727272727272727,
+      "C_raw": 1.0,
+      "S_raw": 1.0,
+      "E": 2.0
+    },
+    "masked_gt": {
+      "U": 0.8622602245625725,
+      "R": 0.02727272727272727,
+      "C_raw": 1.0,
+      "S_raw": 1.0,
+      "E": 2.0
+    }
+  },
+  "primary_support_raw": {
+    "dU": 0.4207773975258299,
+    "dE": -12.333333333333334,
+    "dR": -0.20606060606060603,
+    "safeguard_held": true,
+    "C": 1.0,
+    "S": 1.0
+  },
+  "ceiling_support_gt": {
+    "dU": 0.4207773975258299,
+    "raw_gt_gap": 0.0
+  },
+  "thresholds": {
+    "confirm_dU": 0.15,
+    "refute_dU": 0.05,
+    "safe_C": 0.95
+  },
+  "verdict": "CONFIRMED \u2014 Tucker's causal loss is principally spurious inflation. L3 causal conservation = preserving structural sparsity. Justifies a richer causal-pruning C_causal (separate prereg)."
+}
