@@ -164,3 +164,66 @@ Whatever you choose fixes the Π_gov pre-registration. Everything downstream
 4. `results/operator_search_results.json` — U as objective.
 5. `TCI_CONSULTANT_INTERCONSULT.md` §10–§12 — the design decisions to date.
 6. `manifold_test/manifold_results_definitive.json` — original S4 (S1, t=12).
+
+---
+
+## 9. Consultant resolution — Option C now, B as a research hypothesis; A rejected
+
+The consultant ruled, from methodology (not architecture preference). Decision is
+fixed; recorded here as what the Π_gov pre-registration commits to.
+
+### 9.1 Verdict
+
+- **A — REJECTED.** The lexicographic order only protects causality under *exact*
+  causal equivalence, which never occurs (e.g. U₁=0.921 vs U₂=0.918). A tolerance
+  band `|U₁−U₂|<ε` is unavoidable, and inside it `tw` — a geometry shown to exist
+  *without* causality — decides. That indirectly re-enters the S3-bis pattern
+  (preserve geometry → lose causality) and is epistemologically inconsistent with
+  Causality ≻ Topology. Not fatal, but inconsistent; rejected.
+- **B — probably the correct long-term formulation, but TODAY an undemonstrated
+  hypothesis.** Everything recent points at it (S3-bis: causality in structure;
+  TCI: in structural *selection*; proxy audit: in the graph, not coefficients →
+  `M_gov` is plausibly the manifold of causal structures, not of mean states). But
+  we have not shown such an object exists, nor its dimension/stability/
+  trustworthiness. Methodological principle invoked: **never use as an optimization
+  constraint an object whose existence has not yet been demonstrated.**
+- **C — RECOMMENDED.** The only option coherent with all accumulated evidence: U is
+  valid, `M_gov^static` exists, but we do *not* know `M_gov^static` is relevant to
+  preserving causality, nor that `M_gov^causal` exists. So: optimize U, **report**
+  the static manifold, put **no manifold in the objective.** `M_gov^static` becomes
+  a **descriptor, not a driver.**
+
+### 9.2 The structural consequence (supersedes the §10.3 composition)
+
+The next operator is **`C = C_causal ∘ C_compress`** — **Π_gov is SUSPENDED**, not
+deleted, pending evidence of which manifold it should represent. The paper's seed
+(`ideal C = Π_{M_gov}`) is not abandoned; it is demoted from constructive to
+hypothetical until `M_gov^causal` is characterized.
+
+### 9.3 Pre-registration shape the consultant prescribes
+
+- **Primary objective:** `max U(C(T))` (directly — already validated).
+- **Secondary (reported):** characterize `M_gov^static` — dimension, trustworthiness,
+  stability. Descriptor only.
+- **Exploratory (NOT in the operator):** investigate whether `M_gov^causal` exists,
+  defined over PCMCI graphs / val_matrix / Ω-structures.
+
+### 9.4 New formal research question (adopted)
+
+> **Q_L3.2:** Does a low-dimensional manifold of *causal structures* exist that
+> explains multi-agent governability better than the static manifold identified in
+> S4?
+
+The consultant flags this as "today far more scientifically interesting than any
+new Tucker variant" — it sets the program's medium-term direction (and connects to
+the cross-scale `M_gov` / L4 destination already catalogued as Q4).
+
+### 9.5 Methodological strategy statement (consultant, verbatim, adopted)
+
+> The program currently has a validated causal metric (U) and a characterized
+> static manifold (S4), but not yet sufficient evidence to assert that this
+> manifold is the geometric object relevant to causal governance. Consequently the
+> Π_gov operator is temporarily withdrawn from the optimization objective and the
+> manifold is retained as an observational descriptor. The existence and
+> characterization of a possible causal manifold become an explicit hypothesis for
+> a later phase of the program.
