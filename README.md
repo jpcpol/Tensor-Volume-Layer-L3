@@ -1,8 +1,8 @@
 # CAL-L3 — Tensor Volume Layer
 
-**Part of:** [CAL — Cognitive Abstraction Layers](https://github.com/jpcpol/Cognitive-Abstraction-Layer-CAL)  
+**Part of:** [CAL — Cognitive Abstraction Layers](https://github.com/jpcpol/Cognitive-Abstraction-Layer-CAL) — the research starts at CAL; L3 is its Tensor Volume Layer.  
 **Author:** Juan Pablo Chancay · Aural Syncro  
-**Status:** In development — composition operator C is an open problem  
+**Status:** Characterization closed (~95%, 2026-06) — operator C characterized; causal conservation = structural sparsity preservation. See [`L3_CLOSURE.md`](L3_CLOSURE.md).  
 **Target venue:** NeurIPS / ICML  
 **License:** CC BY-NC 4.0 (docs) · AGPL-3.0 (src)
 
@@ -23,51 +23,56 @@ Where:
 
 ---
 
-## The Central Problem: Operator C
+## The Central Problem: Operator C (characterized)
 
-C must simultaneously satisfy four properties (§5.2 CAL pre-paper):
+C must satisfy four properties (§5.2 CAL pre-paper): causal preservation, temporal coherence, dimensional stability, tractability. L3 **characterized** what causal preservation actually requires — the headline result:
 
-| Property | Requirement |
-|----------|-------------|
-| **Causal preservation** | Causal relations between tensor dimensions must be encodable in V |
-| **Temporal coherence** | Temporal indices of each T⁽ˢ⁾ must compose into a consistent global order |
-| **Dimensional stability** | The 11-dim quality vector structure must be preserved; L4 applies the same operations |
-| **Tractability** | Size of V must not grow linearly with n (number of sessions) |
+> **Reconstruction fidelity ≠ causal conservation.** Low-rank Tucker preserves 98% of variance yet destroys causal structure (S3-bis: reconstruction causal F1 = 0.135 against a perfect raw control). Variance-optimal compression and causality-preserving compression are *different objectives*.
 
-C is currently an **open problem**. This repo exists to find and validate a candidate.
+This reordered the framework to the validation order **Causality ≻ Topology ≻ Reconstruction**, and built C as:
 
----
+```
+C = C_causal ∘ C_compress
+    C_compress = Tucker   (validated tractable: κ(V) sub-linear in n, 195.6× compression)
+    C_causal   = structural prune to the causal support
+```
 
-## Current Candidate: Tucker Decomposition
-
-Authorized by §5.3.2 and §8.2 (method 2) of the CAL pre-paper.
-
-**Approach:** Stack `{T⁽ˢ⁾}` into a higher-order tensor; apply Tucker decomposition to obtain a compressed core G and factor matrices. κ(V) = effective rank of G.
-
-**Library:** `tensorly`  
-**Validation:** Synthetic benchmark corpus with known causal ground truth (fault_injector.py from L2).
-
-### Governance Manifold Hypothesis (§5.6)
-
-> The set of governance-relevant states forms a low-dimensional manifold M_gov embedded in the full tensor space. The intrinsic dimension of M_gov is bounded by the number of distinct failure patterns — not by the ambient tensor dimension.
-
-If confirmed: C = manifold projection, and the L4 Efficiency Hypothesis becomes a *consequence*, not an independent claim.
+**Operative property (the definition L3 closed on):** an operator is *causally conservative* iff it preserves the observational invariants **Ω₀ = (R, C, S)** — reachability, coverage, consistency — under compression, **not** reconstruction error.
 
 ---
 
-## Experimental Plan
+## What L3 found (the characterization, closed)
 
-**Pre-register hypotheses (dated commit) before running S3 or S4.**
+| Result | Finding |
+|--------|---------|
+| **S2** | Tucker is tractable: κ(V)=1296, 195.6× compression, sub-linear in n (Property 4 holds). |
+| **S4** | Governance manifold confirmed: dim(M_gov)≈2–3, trustworthiness ≥0.96. *Static* (time-averaged). |
+| **S3-bis** | Property 1 **refuted** for plain Tucker: reconstruction ≠ causality (F1=0.135 vs raw 1.000). |
+| **TCI** | A ground-truth-free causal metric **U** (PCMCI val-matrix flow) validated as both instrument and objective. |
+| **Proxy audit** | Causality is **structural, not magnitude**: no differentiable magnitude proxy reproduces U's ordering. |
+| **Q_L3.2A** | Tucker's failure is **spurious-edge fabrication**, not loss: coverage + sign held, reachability/\|E\| exploded. |
+| **Form 1** | A structural prune to the raw causal support recovers **75% of the causal-conservation headroom with no ground truth** (U 0.441→0.862, raw↔GT gap = 0.000). |
 
-| Step | Task | Status |
+Full narrative + formal definition + provenance: [`L3_CLOSURE.md`](L3_CLOSURE.md).
+
+### Governance Manifold Hypothesis (§5.6) — confirmed, but demoted to descriptor
+
+dim(M_gov)≈2–3 is confirmed. However L3 found this manifold is *static* (reconstructible with the time axis averaged out) while causality is *temporal* — so M_gov is retained as a **descriptor**, not as a projection driver (`Π_gov` suspended). Whether a low-dimensional *causal* manifold exists is an open L4 question (Q_L3.2).
+
+---
+
+## Experimental record (all pre-registered, all run)
+
+Every step committed its pre-registration *before* code; negatives reported honestly.
+
+| Step | Task | Result |
 |------|------|--------|
-| S4 | Manifold test: is dim(M_gov) << ambient dim? ← **run first** | Pending |
-| S1 | Synthetic pipeline generator with known causal graph (reuses L2 fault_injector.py) | Pending |
-| S2 | C = Tucker over {T⁽ˢ⁾} stack; measure κ(V) | Pending |
-| S3 | Conservation test: does M(V) recover ground-truth causal graph? | Pending |
-| S5 | O(n²) flat vs O(κ) cost contrast — **AMD-Instinct runs this on MI300X** | Deferred → gate C |
-
-S4 is the cheapest early gate: if M_gov is high-dimensional, switch strategy (sparse / SSM) before investing in Tucker implementation.
+| S4 | Manifold test: dim(M_gov) << ambient? | ✅ dim≈2–3, tw≥0.96 (confirmed on S1 and S1-bis) |
+| S1 / S1-bis | Synthetic corpus with known causal graph | ✅ 3 graphs × 30 sessions, t=48 |
+| S2 | C = Tucker over {T⁽ˢ⁾}; κ(V) | ✅ κ=1296, 195.6×, tractable |
+| S3 / S3-bis | Does the reconstruction recover the causal graph? | ❌ Property 1 refuted (clean) → reframing |
+| TCI · proxy audit · operator search · Ω · Q_L3.2A · Form 1 | Characterize causal conservation | ✅ Closed — sparsity-preservation thesis confirmed |
+| S5 | O(n²) flat vs O(κ) cost contrast on MI300X | → handed to L4-A / AMD (gate-C closed) |
 
 ---
 
@@ -91,8 +96,8 @@ L3/
 ## Dependencies
 
 - **Consumes:** L2 validated corpus (`T⁽ˢ⁾` from scenarios S1–S5 in TCO-L2)  
-- **Blocks:** L4 Rol 2 — `fa_dme` as M(V) kernel proxy requires C to exist first  
-- **AMD-Instinct collaboration:** S5 (O(n²) vs O(κ) contrast) runs on MI300X post gate-C  
+- **Unblocks:** L4 — with C characterized and κ(V) concrete, the L4-A operator delivers the dual volume `(V_Tucker, G_pruned)` that L4 / AMD's κ vs n² contrast consumes (gate-C closed)  
+- **AMD-Instinct collaboration:** the O(n²) vs O(κ) contrast runs on MI300X; L3 supplies the O(κ) side (κ=1296)  
 
 Full collaboration context: [CAL collaboration doc](https://github.com/jpcpol/Cognitive-Abstraction-Layer-CAL)
 

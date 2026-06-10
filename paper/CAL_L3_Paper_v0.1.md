@@ -5,9 +5,9 @@
 Aural Syncro Research Lab  
 jpcpol@gmail.com
 
-**Version:** 0.1 — Draft / Working Paper  
+**Version:** 0.2 — Draft / Working Paper (characterization phase closed)  
 **Date:** June 2026  
-**Status:** Pre-experimental. Operator C is an open problem. Hypotheses to be pre-registered before data collection.  
+**Status:** Characterization closed (~95%). Operator C characterized: causal conservation = preservation of Ω₀ = (R, C, S) under compression, *not* reconstruction fidelity. All hypotheses pre-registered before data; see §6.9 and `L3_CLOSURE.md`.  
 **Part of:** CAL architecture — [CAL pre-paper DOI 10.5281/zenodo.20430343](https://doi.org/10.5281/zenodo.20430343)  
 **Repository:** [github.com/jpcpol/Tensor-Volume-Layer-L3](https://github.com/jpcpol/Tensor-Volume-Layer-L3)  
 **License:** CC BY-NC 4.0 (this document) · AGPL-3.0 (src/)  
@@ -359,6 +359,30 @@ Path A from §6.7 was executed under a joint pre-registration fixed *before the 
 
 ---
 
+### 6.9 Characterization Phase — from refutation to a closed operator (2026-06)
+
+S3-bis refuted plain Tucker but did not leave a dead end; it reframed the problem. The characterization phase that followed is summarized here; the full pre-registered record is in `L3_CLOSURE.md` and `causal_conservation/TCI_CONSULTANT_INTERCONSULT.md` (§§9–14). Every step committed its pre-registration before code.
+
+**Reframing.** L3 stopped being a compression problem and became a *causal-observability-preservation* problem, committed to the validation order **Causality ≻ Topology ≻ Reconstruction**. The operator is built as `C = C_causal ∘ C_compress` — Tucker (validated tractable, §6.6) compresses; a causal step preserves structure.
+
+**A ground-truth-free causal instrument (TCI).** Before designing any causal operator, we validated the *metric* it would be judged by — because at deployment no causal graph exists. **U** = the Pearson correlation of off-diagonal PCMCI val-matrix flow. A pre-registered calibration test passed two gates: M1 (U orders the Tucker rank family as the supervised causal F1 does, Spearman ρ=1.0) and C2 (U collapses 1.0→0.068 when causality is destroyed at fixed marginals). A pre-run audit first rejected a seeded edge-recall metric that would have given a false pass — the discipline that kept the result clean. U is both a validated instrument and a usable optimization objective.
+
+**Causality is structural, not magnitude.** Seeking a differentiable surrogate for U, three magnitude-based proxies (full-conditioning, bivariate, ridge-VAR) failed to reproduce U's ordering (ρ≤0.6 vs 1.0). U's discriminating power lives in PCMCI's **discrete** parent-selection — so C is optimized against U directly via derivative-free search, with no proxy.
+
+**Π_gov suspended.** The governance manifold (§6.5, dim≈2–3) is *static* (reconstructible with the time axis averaged out, tw=0.96 even at t=48 — re-confirmed on S1-bis) while causality is *temporal*. A topological tie-break toward the static manifold would re-enter the S3-bis trap, so the manifold is retained as a **descriptor**, not a projection driver; the operator reduces to `C = C_causal ∘ C_compress`.
+
+**The failure mode, decomposed (Q_L3.2A).** Defining the preservation target as the observational invariants **Ω₀ = (R, C, S)** (reachability, coverage, consistency), the Tucker reconstruction was characterized across ranks: **consistency S=1.0 everywhere** (no sign corruption), **coverage high** (true edges recovered — not omission), but **reachability and edge count exploded** (raw 2 edges → Tucker 14–28). Tucker does not lose or corrupt causality — it **over-generates** it (spurious-edge fabrication). C_causal must therefore *prune*, not recover.
+
+**The structural thesis, confirmed (Form 1).** A pre-registered falsifier pruned the reconstruction's flow to the raw causal support. Prediction met exactly: U **0.441 → 0.862**, |E| 14.3→2.0, R 0.233→0.027, with the safeguard held (C=1.0, S=1.0 — no true edge destroyed). The self-referential deployment prune **equalled** the ground-truth-oracle prune (raw↔GT gap = 0.000). **A structural prune recovers 75% of the causal-conservation headroom with no ground truth.**
+
+**The operative definition L3 closes on:**
+
+> An operator is **causally conservative** iff it preserves Ω₀ = (R, C, S) under compression — not reconstruction fidelity — while achieving κ(V) < |T|.
+
+**Status.** Characterization ~95% closed. The residual (U=0.862 vs 1.0, ≈25%) is a declared frontier — flow magnitude / higher-order structure the lag-1 binary support cannot capture — motivating *graded* pruning as future work, not reopening the thesis. The operator delivered to L4 is the dual representation `V = (V_Tucker, G_pruned)` with κ(V)=1296 (§6.6), which closed condition (a) of the L4 Efficiency Hypothesis. Property 1, refuted for plain Tucker in §6.8, is **recovered** by `C = C_causal ∘ C_compress` under the Ω₀ criterion.
+
+---
+
 ## 7. Semantic Information Density at L3
 
 SID(L2→L3) measures how much decision-relevant information is preserved through C. Without a human reference signal at L3, measurement relies on the synthetic benchmark with known causal ground truth (S3):
@@ -397,16 +421,17 @@ The target threshold is SID(L2→L3) > 0.70 — consistent with the L2 empirical
 
 ## 10. Roadmap
 
-| Milestone | Gate | Timeline |
-|-----------|------|----------|
-| S4: manifold test on L2 corpus | — | First (before any other experiment) |
-| Pre-register S3 hypotheses | S4 result determines which hypotheses | Before running S3 |
-| S1–S3: synthetic validation | Pre-registration complete | Weeks 1–4 (35-day window) |
-| Report S4 result (positive or negative) | — | Week 1 |
-| Report S3 result (positive or negative) | S1–S2 complete | Week 4 |
-| S5: cost contrast on MI300X | C validated on S1–S4 | AMD-Instinct gate |
-| L3 paper draft | S1–S4 results available | Post-experiment |
-| Submission (NeurIPS/ICML) | L2 paper accepted/submitted | TBD |
+| Milestone | Status |
+|-----------|--------|
+| S4 manifold test (dim M_gov) | ✅ Done — dim≈2–3, tw≥0.96 |
+| S1/S1-bis synthetic causal corpus | ✅ Done |
+| S2 Tucker tractability (κ(V)) | ✅ Done — κ=1296, 195.6×, sub-linear |
+| S3-bis causal conservation | ✅ Done — Property 1 refuted for plain Tucker (clean) |
+| Characterization (TCI → proxy audit → Π_gov → Ω → Q_L3.2A → Form 1) | ✅ Done — structural-sparsity thesis confirmed (§6.9) |
+| Operator delivered to L4 (dual V, κ(V)=1296) | ✅ Done — closes L4 condition (a) |
+| S5 cost contrast on MI300X | → handed to L4-A / AMD (gate-C closed); at-scale contrast active |
+| Residual-25% characterization → graded C_causal (L4-B) | Frozen — after AMD contrast freeze |
+| Submission (NeurIPS/ICML) | Post-AMD contrast |
 
 ---
 
