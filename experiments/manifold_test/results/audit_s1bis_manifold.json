@@ -1,0 +1,67 @@
+{
+  "audit": "Gap-1 \u2014 governance manifold on S1-bis (t=48), S4 harness verbatim",
+  "corpus": "corpus_s1bis (n=90, t_cycles=48)",
+  "reduction": "T(11x4x4x48) -> mean over stage,agent,cycle -> v in [0,1]^11 (same as S4)",
+  "umap": {
+    "2": {
+      "tw_mean": 0.9611439224459358,
+      "tw_std": 0.0016481426325719302,
+      "best_n_neighbors": 10
+    },
+    "3": {
+      "tw_mean": 0.9629813571961223,
+      "tw_std": 0.0011780637803690272,
+      "best_n_neighbors": 15
+    },
+    "4": {
+      "tw_mean": 0.9650902311707681,
+      "tw_std": 0.001166576994253269,
+      "best_n_neighbors": 15
+    },
+    "5": {
+      "tw_mean": 0.9636659209545115,
+      "tw_std": 0.0012920555783743073,
+      "best_n_neighbors": 15
+    }
+  },
+  "pca": {
+    "2": {
+      "tw": 0.9421774794929157,
+      "cum_explained_variance": 0.6244738861167836
+    },
+    "3": {
+      "tw": 0.9548993288590604,
+      "cum_explained_variance": 0.747119326646374
+    },
+    "4": {
+      "tw": 0.9682028337061894,
+      "cum_explained_variance": 0.8005181005668893
+    },
+    "5": {
+      "tw": 0.9814019388516033,
+      "cum_explained_variance": 0.84686700790682
+    }
+  },
+  "decision": {
+    "dim_gov": 2,
+    "strategy": "TUCKER",
+    "verdict": "H_manifold CONFIRMED \u2014 dim(M_gov)=2 with trustworthiness=0.9611 >= 0.85",
+    "proceed": "Proceed S1 -> S2 -> S3 with Tucker decomposition",
+    "crossing_dim_0p85": 2,
+    "best_dim": 4,
+    "best_trustworthiness": 0.9650902311707681,
+    "trustworthiness_by_dim": {
+      "2": 0.9611439224459358,
+      "3": 0.9629813571961223,
+      "4": 0.9650902311707681,
+      "5": 0.9636659209545115
+    },
+    "pca_triangulation": {
+      "pca_best_dim": 5,
+      "pca_best_trustworthiness": 0.9814019388516033,
+      "umap_minus_pca": -0.01631170768083523,
+      "note": "UMAP >> PCA -> strongly non-linear manifold; UMAP ~ PCA -> estimate robust / structure near-linear"
+    }
+  },
+  "comparison_to_S1": "S1 (t=12) gave dim~2-3, tw 0.959-0.965; S1-bis matches -> manifold robust to corpus/time length"
+}
